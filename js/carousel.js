@@ -231,7 +231,12 @@ var VNCarousel;
 		}
 
 		function moveToSlide(slide, transition) {
-			slide = Math.max(0, Math.min(slide, totalSlides - 1));
+			if (settings.circular) {
+				slide = Math.max(1, Math.min(slide, totalSlides - 2));
+			} else {
+				slide = Math.max(0, Math.min(slide, totalSlides - 1));
+			}
+			
 			currentSlide = slide;
 
 			setCarouselOffset((slideWidth * slide) - peekingWidth, transition);
