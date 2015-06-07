@@ -1,0 +1,73 @@
+/* Basics */
+
+.bare-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.carousel {
+	overflow: hidden;
+}
+
+.carousel-slides-wrapper:after {
+	content: " ";
+	display: table;
+	clear: both;
+}
+
+.carousel-slide {
+	float: left;
+}
+
+.carousel-pagination-item {
+	position: relative;
+	width: 1.25rem;
+	height: 1.25rem;
+	display: inline-block;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	outline: 0;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.carousel-pagination-item:after {
+	content: " ";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: .5rem;
+	height: .5rem;
+	margin-left: -.25rem;
+	margin-top: -.25rem;
+	background-color: #000;
+	border-radius: 50%;
+	opacity: .3;
+}
+
+.carousel-pagination-selected:after {
+	opacity: 1;
+}
+
+.carousel-transition {
+	transition: .4s ease-in-out;
+}
+
+/* Example */
+
+.carousel-slide {
+	padding: 0 10px;
+	box-sizing: border-box;
+}
+
+.slide-wrapper {
+	height: 400px;
+	background-color: #eee;
+	background-position: center center;
+	background-size: cover;
+	color: #333;
+	font-size: 20em;
+	text-align: center;
+}

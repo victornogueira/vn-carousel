@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="author" content="Victor Nogueira" />
+		<meta name="description" content="Carousel." />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/style.css">
+		<title>VN Carousel</title>
+	</head>
+	<body>
+		<div class="js-carousel">
+			<div class="js-carousel-slides-wrapper">
+				<div>
+					<div class="slide-wrapper" style=
+					"background-image: url(images/01.jpg)">
+					</div>
+				</div>
+				<div>
+					<div class="slide-wrapper" style=
+					"background-image: url(images/02.jpg)">
+					</div>
+				</div>
+				<div>
+					<div class="slide-wrapper" style=
+					"background-image: url(images/03.jpg)">
+					</div>
+				</div>
+			</div>
+			<button class="js-carousel-prev">previous</button>
+			<button class="js-carousel-next">next</button>
+			<div class="js-carousel-pagination"></div>
+		</div>
+
+		<script src="js/hammer.min.js"></script>
+		<script src="js/carousel.js"></script>
+		<script>
+			$myCarousel = document.querySelectorAll('.js-carousel');
+
+			for (i = 0; i < $myCarousel.length; i++) {
+				VNCarousel($myCarousel[i],{
+					peekingPercentage: 10
+				});
+			}
+		</script>
+	</body>
+</html>
