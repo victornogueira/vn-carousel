@@ -55,7 +55,7 @@ var VNCarousel;
 			$paginationFirst, $clonedSlide, totalSlides, currentSlide, slideWidth,
 			pctDragged, paginationNodeList, clickedElementIndex, peekingWidth,
 			carouselWidthPx, transitionEnd, has3dTransforms, carouselWidth, totalCloned,
-			peekingAmount, i;
+			peekingAmount, $carouselSecond, $carouselBeforeLast, i;
 
 		// Default settings
 		var settings = {
@@ -103,7 +103,7 @@ var VNCarousel;
 				$clonedSecond.classList.add('cloned-slide');
 				$clonedBeforeLast.classList.add('cloned-slide');
 				$clonedLast.classList.add('cloned-slide');
-				$clonedSlide = document.querySelectorAll('.cloned-slide');
+				$clonedSlide = $slidesWrapper.querySelectorAll('.cloned-slide');
 				totalCloned = $clonedSlide.length;
 			}
 
@@ -238,8 +238,13 @@ var VNCarousel;
 			}
 			
 			currentSlide = slide;
-
 			setCarouselOffset((slideWidth * slide) - peekingWidth, transition);
+
+			for (i = 0; i < totalSlides; i++) {
+				$carouselSlide[i].classList.remove('carousel-slide-selected');
+			}
+
+			$carouselSlide[slide].classList.add('carousel-slide-selected');
 		}
 
 		function updatePagination(slide) {
@@ -299,14 +304,15 @@ var VNCarousel;
 
 			e.preventDefault();
 		});
+		
+		$paginationWrapper.addEventListener('click', function(e) {
+			var clickedItem = e.target;
 
-		for (i = 0; i < $paginationItem.length; i++) {
-			$paginationItem[i].addEventListener('click', function(e) {
-				paginationClick(this);
-
-				e.preventDefault();
-			});
-		}
+			while(clickedItem != $paginationWrapper) {
+				paginationClick(clickedItem);
+				clickedItem = clickedItem.parentNode;
+			}
+		});
 
 		$slidesWrapper.addEventListener(transitionEnd,function(){
 			if (settings.circular) {
