@@ -199,8 +199,8 @@ var VNCarousel;
 				break;
 
 				case 'release':
-					// If more then 25% dragged, move slide
-					if (Math.abs(pctDragged) > 0.25) {
+					// If more then 50% dragged, move slide
+					if (Math.abs(pctDragged) > 0.5) {
 						if (ev.gesture.direction == 'right') {
 							movetoAdjacent(1, true);
 						} else {
