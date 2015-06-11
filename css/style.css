@@ -44,22 +44,29 @@
 	margin-top: -.25rem;
 	background-color: #000;
 	border-radius: 50%;
-	opacity: .3;
+	opacity: .2;
 }
 
 .carousel-pagination-selected:after {
 	opacity: 1;
 }
 
-.carousel-transition {
-	transition: .4s ease-in-out;
+.carousel-transition,
+.carousel-transition .carousel-slide {
+	transition: .5s;
 }
 
 /* Example */
 
+.carousel {
+	position: relative;
+	margin: 2em 0;
+}
+
 .carousel-slide {
-	padding: 0 10px;
 	box-sizing: border-box;
+	transform: scale(.9);
+	opacity: .5;
 }
 
 .slide-wrapper {
@@ -70,4 +77,35 @@
 	color: #333;
 	font-size: 20em;
 	text-align: center;
+}
+
+.carousel-slide-selected {
+	transform: scale(1);
+	opacity: 1;
+}
+
+.carousel-arrow {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 10%;
+	border: 0;
+	opacity: .5;
+	background: transparent;
+	outline: 0;
+	text-indent: -9999px;
+	overflow: hidden;
+}
+
+.carousel-arrow-prev {
+	left: 0;
+}
+
+.carousel-arrow-next {
+	right: 0;
+}
+
+.carousel-pagination {
+	text-align: center;
+	margin-top: 1em;
 }

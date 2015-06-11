@@ -231,20 +231,23 @@ var VNCarousel;
 		}
 
 		function moveToSlide(slide, transition) {
+			// Move to slide
 			if (settings.circular) {
 				slide = Math.max(1, Math.min(slide, totalSlides - 2));
 			} else {
 				slide = Math.max(0, Math.min(slide, totalSlides - 1));
 			}
-			
-			currentSlide = slide;
-			setCarouselOffset((slideWidth * slide) - peekingWidth, transition);
 
+			// Switch class to selected slide
 			for (i = 0; i < totalSlides; i++) {
 				$carouselSlide[i].classList.remove('carousel-slide-selected');
 			}
 
 			$carouselSlide[slide].classList.add('carousel-slide-selected');
+
+			// Update current slide
+			currentSlide = slide;
+			setCarouselOffset((slideWidth * slide) - peekingWidth, transition);
 		}
 
 		function updatePagination(slide) {
