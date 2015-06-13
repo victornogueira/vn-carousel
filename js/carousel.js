@@ -129,14 +129,20 @@ var VNCarousel;
 				$carouselSlide[i].classList.add('carousel-slide');
 			}
 
-			// Create pagination element (dots)
-			$paginationWrapper.innerHTML = '<button class="carousel-pagination-item"></button>';
-			$paginationItem = $paginationWrapper.children;
+			if ($paginationWrapper) {
+				// Create pagination element (dots)
+				$paginationWrapper.innerHTML = '<button class="carousel-pagination-item"></button>';
+				$paginationItem = $paginationWrapper.children;	
 
-			// Clone pagination elements
-			for (i = 0; i < totalSlides - totalCloned - 1; i++) {
-				$clonedPagination = $paginationItem[0].cloneNode(true);
-				$paginationItem[0].parentNode.appendChild($clonedPagination);
+				// Clone pagination elements
+				for (i = 0; i < totalSlides - totalCloned - 1; i++) {
+					$clonedPagination = $paginationItem[0].cloneNode(true);
+					$paginationItem[0].parentNode.appendChild($clonedPagination);
+				}
+
+				// Select first pagination item
+				$paginationFirst = $paginationItem[0];
+				$paginationFirst.classList.add('carousel-pagination-selected');
 			}
 
 			// Position slides
@@ -152,10 +158,6 @@ var VNCarousel;
 			for (i = 0; i < $carouselSlide.length; i++) {
 				$carouselSlide[i].style.width = slideWidth + '%';	
 			}
-
-			// Select first pagination item
-			$paginationFirst = $paginationItem[0];
-			$paginationFirst.classList.add('carousel-pagination-selected');
 
 			// Attach touch events
 			initTouchEvents();
@@ -268,14 +270,16 @@ var VNCarousel;
 		}
 
 		function updatePagination(slide) {
-			for (i = 0; i < $paginationItem.length; i++) {
-				$paginationItem[i].classList.remove('carousel-pagination-selected');	
-			}
-			
-			if (settings.circular) {
-				$paginationItem[slide-1].classList.add('carousel-pagination-selected');
-			} else {
-				$paginationItem[slide].classList.add('carousel-pagination-selected');
+			if ($paginationWrapper) {
+				for (i = 0; i < $paginationItem.length; i++) {
+					$paginationItem[i].classList.remove('carousel-pagination-selected');	
+				}
+				
+				if (settings.circular) {
+					$paginationItem[slide-1].classList.add('carousel-pagination-selected');
+				} else {
+					$paginationItem[slide].classList.add('carousel-pagination-selected');
+				}
 			}
 		}
 
@@ -317,26 +321,32 @@ var VNCarousel;
 
 		initCarousel();
 
-		$carouselNext.addEventListener('click', function(e) {
-			movetoAdjacent(-1);
+		if ($carouselNext) {
+			$carouselNext.addEventListener('click', function(e) {
+				movetoAdjacent(-1);
 
-			e.preventDefault();
-		});
-
-		$carouselPrev.addEventListener('click', function(e) {
-			movetoAdjacent(1);
-
-			e.preventDefault();
-		});
+				e.preventDefault();
+			});	
+		}
 		
-		$paginationWrapper.addEventListener('click', function(e) {
-			var clickedItem = e.target;
+		if($carouselPrev) {
+			$carouselPrev.addEventListener('click', function(e) {
+				movetoAdjacent(1);
 
-			while(clickedItem != $paginationWrapper) {
-				paginationClick(clickedItem);
-				clickedItem = clickedItem.parentNode;
-			}
-		});
+				e.preventDefault();
+			});			
+		}
+
+		if ($paginationWrapper) {
+			$paginationWrapper.addEventListener('click', function(e) {
+				var clickedItem = e.target;
+
+				while(clickedItem != $paginationWrapper) {
+					paginationClick(clickedItem);
+					clickedItem = clickedItem.parentNode;
+				}
+			});	
+		}
 
 		$slidesWrapper.addEventListener(transitionEnd,function() {
 			if (settings.circular) {
