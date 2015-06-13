@@ -21,7 +21,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 			<div>Slide 2</div>
 			<div>Slide 3</div>
 		</div>
-		 <!-- Navigation buttons and pagination are optional -->
+		<!-- Navigation buttons and pagination are optional -->
 		<button class=“js-carousel-prev”>Previous</button>
 		<button class=“js-carousel-next”>Next</button>
 		<div class=“js-carousel-pagination”></div>
@@ -38,7 +38,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 
-3. Call the VNCarousel function and setup the options:
+3. Call the carousel function and configure the options:
 
 	```Javascript
 	
@@ -55,4 +55,4 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 ## Browser support
-Since the code relies on the classList API it won’t work on anything that doesn’t support it (e.g. IE8 and IE9). It was tested on Chrome, Safari, Opera, IE10, iOS Safari and Chrome for Android.
+Since the code relies on the classlist API it won’t work on anything that doesn’t support it (e.g. IE8 and IE9). Check http://caniuse.com/#search=classlist for more details. It was tested on Chrome, Safari, Opera, IE10, iOS Safari and Chrome for Android.
