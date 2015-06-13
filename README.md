@@ -55,4 +55,6 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 ## Browser support
-Since the code relies on the classList API it won’t work on anything that doesn’t support it (e.g. IE8 and IE9). It was tested on Chrome, Safari, Opera, IE10, iOS Safari and Chrome for Android.
+Since the code relies on the classlist API it won’t work on anything that doesn’t support it (e.g. IE8 and IE9). It was tested on Chrome, Safari, Opera, IE10, iOS Safari and Chrome for Android.
+
+Probably supported browsers: http://caniuse.com/#search=classlist
