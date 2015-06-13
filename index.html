@@ -37,13 +37,16 @@
 		<script src="js/hammer.min.js"></script>
 		<script src="js/carousel.min.js"></script>
 		<script>
-			$myCarousel = document.querySelectorAll('.js-carousel');
+			$myCarousel = document.querySelector('.js-carousel');
 
-			for (i = 0; i < $myCarousel.length; i++) {
-				VNCarousel($myCarousel[i],{
-					peekingPercentage: 10
-				});
-			}
+			VNCarousel($myCarousel,{
+				circular: true,
+				slidesWrapper: '.js-carousel-slides-wrapper',
+				carouselPrev: '.js-carousel-prev',
+				carouselNext: '.js-carousel-next',
+				carouselPagination: '.js-carousel-pagination',
+				peekingPercentage: 10 // 0 to 20
+			});
 		</script>
 	</body>
 </html>
