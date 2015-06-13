@@ -10,7 +10,7 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 
 ## Usage
 1. Add your slides, pagination and prev/next buttons to the HTML:
-‘’’’HTML
+´´´´HTML
 <div class=“js-carousel”>
 			<div class=“js-carousel-slides-wrapper”>
 				<div>
