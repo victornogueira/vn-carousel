@@ -1,12 +1,13 @@
 # VN Carousel
-A simple, jQuery-free, carousel made with the help of Hammer.js.  
+A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 
 ## Features
 - Responsive and touch-enabled
-- Supports multiple carousels in one page
-- Supports infinite (circular) navigation
-- Supports slide peeking for previous and next items
+- Desktop mouse dragging
+- Multiple carousels in one page
 - Supports custom classes
+- Optional infinite mode
+- Optional slide peeking for previous and next items
 
 ## Usage
 
