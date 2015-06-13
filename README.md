@@ -13,25 +13,14 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 ````HTML
 <div class=“js-carousel”>
 	<div class=“js-carousel-slides-wrapper”>
-		<div>
-			<div class=“slide-wrapper” style=
-			“background-image: url(images/01.jpg)”>
-			</div>
-		</div>
-		<div>
-			<div class=“slide-wrapper” style=
-			“background-image: url(images/02.jpg)”>
-			</div>
-		</div>
-		<div>
-			<div class=“slide-wrapper” style=
-			“background-image: url(images/03.jpg)”>
-			</div>
-		</div>
+		<div>Slide 1</div>
+		<div>Slide 2</div>
+		<div>Slide 3</div>
 	</div>
-	<button class=“carousel-arrow carousel-arrow-prev js-carousel-prev”>previous</button>
-	<button class=“carousel-arrow carousel-arrow-next js-carousel-next”>next</button>
-	<div class=“carousel-pagination js-carousel-pagination”></div>
+	 <!-- Navigation buttons and pagination are optional -->
+	<button class=“js-carousel-prev”>Previous</button>
+	<button class=“js-carousel-next”>Next</button>
+	<div class=“js-carousel-pagination”></div>
 </div>
 ````
 
@@ -42,7 +31,7 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 ````
 
 3. Call the VNCarousel function and setup the options:
-````HTML
+````Javascript
 $myCarousel = document.querySelector(‘.js-carousel’);
 
 VNCarousel($myCarousel,{
