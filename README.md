@@ -6,7 +6,7 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 - Supports multiple carousels in one page
 - Supports infinite (circular) navigation
 - Supports slide peeking for previous and next items
-# Supports custom classes
+- Supports custom classes
 
 ## Usage
 1. Add your slides, pagination and prev/next buttons to the HTML:
