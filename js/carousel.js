@@ -56,7 +56,7 @@ var VNCarousel;
 			pctDragged, paginationNodeList, clickedElementIndex, peekingWidth,
 			carouselWidthPx, transitionEnd, has3dTransforms, carouselWidth, totalCloned,
 			peekingAmount, $carouselSecond, $carouselBeforeLast, slidesDragged,
-			panDirection, transitioning, i;
+			panDirection, slideBeforeMoving, transitioning, i;
 
 		// Default settings
 		var settings = {
@@ -192,7 +192,7 @@ var VNCarousel;
 							if (!settings.circular) {
 								if((currentSlide === 0 && panDirection == 'panright') ||
 								   (currentSlide === totalSlides - 1 && panDirection == 'panleft')) {
-									dragOffset *= 0.4;
+									dragOffset *= 0.2;
 								}
 							}
 
@@ -285,14 +285,19 @@ var VNCarousel;
 
 		function movetoAdjacent(direction) {
 			if (!transitioning) {
-				transitioning = true;
+				slideBeforeMoving = currentSlide;
 
 				if (direction < 0) {
 					currentSlide += 1;
 				} else {
 					currentSlide -= 1;
 				}
-				moveToSlide(currentSlide, true);	
+
+				moveToSlide(currentSlide, true);
+
+				if (slideBeforeMoving !== currentSlide) {
+					transitioning = true;
+				}
 			}
 		}
 
