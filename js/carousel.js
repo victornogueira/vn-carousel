@@ -55,7 +55,7 @@ var VNCarousel;
 			$paginationFirst, $clonedSlide, totalSlides, currentSlide, slideWidth,
 			pctDragged, paginationNodeList, clickedElementIndex, peekingWidth,
 			carouselWidthPx, transitionEnd, has3dTransforms, carouselWidth, totalCloned,
-			peekingAmount, $carouselSecond, $carouselBeforeLast, i;
+			peekingAmount, $carouselSecond, $carouselBeforeLast, slidesDragged, i;
 
 		// Default settings
 		var settings = {
@@ -156,62 +156,75 @@ var VNCarousel;
 			$paginationFirst = $paginationItem[0];
 			$paginationFirst.classList.add('carousel-pagination-selected');
 
-			new Hammer($slidesWrapper, { dragLockToAxis: true }).on('release dragleft dragright swipeleft swiperight', initTouchEvents);
+			initTouchEvents();
 		}
 
 		function initTouchEvents(ev) {
-			// Get dragged amount
-			carouselWidthPx = $carouselSlide[0].getBoundingClientRect().width;
-			pctDragged      = ev.gesture.deltaX/carouselWidthPx;
+			// Create hammer
+			var createHammer = new Hammer($slidesWrapper);
 
-			// Set events
-			switch(ev.type) {
-				case 'dragright':
-				case 'dragleft':
-					// Move with the finger
-					var slideOffset = slideWidth * (currentSlide - 1);
-					var dragOffset = -pctDragged * slideWidth;
+			// Listen to events
+			createHammer.on('panstart panleft panright panend swiperight swipeleft', function(ev) {
+				switch(ev.type) {
+					case 'panstart':
+						// Get dragged amount
+						carouselWidthPx = $carouselSlide[0].getBoundingClientRect().width;
+					break;
 
-					// Make drag feel "heavier" at the first and last pane
-					if (!settings.circular) {
-						if((currentSlide === 0 && ev.gesture.direction == 'right') ||
-						   (currentSlide === totalSlides - 1 && ev.gesture.direction == 'left')) {
-							dragOffset *= 0.4;
+					case 'panright':
+					case 'panleft':
+						// Get pct dragged
+						pctDragged = ev.deltaX/carouselWidthPx;
+
+						// Get pan direction
+						panDirection = ev.type;
+
+						// Move with the finger
+						var slideOffset = slideWidth * (currentSlide - 1);
+						var dragOffset = -pctDragged * slideWidth;
+
+						// Make drag feel "heavier" at the first and last pane
+						if (!settings.circular) {
+							if((currentSlide === 0 && ev.direction == 'right') ||
+							   (currentSlide === totalSlides - 1 && ev.direction == 'left')) {
+								dragOffset *= 0.4;
+							}
 						}
-					}
 
-					// Drag carousel
-					setCarouselOffset(dragOffset + slideOffset + slideWidth - peekingWidth);
+						// Drag carousel
+						setCarouselOffset(dragOffset + slideOffset + slideWidth - peekingWidth);
 
-					// Disable browser scrolling
-					ev.gesture.preventDefault();
+						// Disable browser scrolling
+						ev.preventDefault();
+					break;
 
-				break;
+					case 'swipeleft':
+						movetoAdjacent(-1);
+						createHammer.stop(true);
+					break;
 
-				case 'swipeleft':
-					movetoAdjacent(-1, true);
-					ev.gesture.stopDetect();
-				break;
+					case 'swiperight':
+						movetoAdjacent(1);
+						createHammer.stop(true);
+					break;
 
-				case 'swiperight':
-					movetoAdjacent(1, true);
-					ev.gesture.stopDetect();
-				break;
+					case 'panend':
+						// If more then 50% dragged, move slide
+						if (Math.abs(pctDragged) > 0.5) {
+							slidesDragged = Math.abs(Math.round(pctDragged));
 
-				case 'release':
-					// If more then 50% dragged, move slide
-					if (Math.abs(pctDragged) > 0.5) {
-						if (ev.gesture.direction == 'right') {
-							movetoAdjacent(1, true);
+							if (panDirection == 'panright') {
+								moveToSlide(currentSlide - slidesDragged, true);
+							} else {
+								moveToSlide(currentSlide + slidesDragged, true);
+							}
+						// If not, move back to current slide
 						} else {
-							movetoAdjacent(-1, true);
+							moveToSlide(currentSlide, true);
 						}
-					// If not, move back to current slide
-					} else {
-						moveToSlide(currentSlide, true);
-					}
-				break;
-			}
+					break;
+				}
+			});
 		}
 
 		function setCarouselOffset(distance, transition) {
@@ -262,13 +275,13 @@ var VNCarousel;
 			}
 		}
 
-		function movetoAdjacent(direction, transition) {
+		function movetoAdjacent(direction) {
 			if (direction < 0) {
 				currentSlide += 1;
 			} else {
 				currentSlide -= 1;
 			}
-			moveToSlide(currentSlide, transition);
+			moveToSlide(currentSlide, true);	
 		}
 
 		function moveFromCloned() {
@@ -297,13 +310,13 @@ var VNCarousel;
 		initCarousel();
 
 		$carouselNext.addEventListener('click', function(e) {
-			movetoAdjacent(-1, true);
+			movetoAdjacent(-1);
 
 			e.preventDefault();
 		});
 
 		$carouselPrev.addEventListener('click', function(e) {
-			movetoAdjacent(1, true);
+			movetoAdjacent(1);
 
 			e.preventDefault();
 		});
@@ -317,7 +330,7 @@ var VNCarousel;
 			}
 		});
 
-		$slidesWrapper.addEventListener(transitionEnd,function(){
+		$slidesWrapper.addEventListener(transitionEnd,function() {
 			if (settings.circular) {
 				moveFromCloned();
 				updatePagination(currentSlide-1);
