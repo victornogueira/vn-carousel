@@ -10,6 +10,7 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 
 ## Usage
 1. Add your slides, pagination and prev/next buttons to the HTML:
+
 ````HTML
 <div class=“js-carousel”>
 	<div class=“js-carousel-slides-wrapper”>
@@ -25,12 +26,14 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 ````
 
 2. At the bottom of the page, before the `</body>` tag, add the scripts:
+
 ````HTML
 	<script src=“js/hammer.min.js”></script>
 	<script src=“js/carousel.min.js”></script>
 ````
 
 3. Call the VNCarousel function and setup the options:
+
 ````Javascript
 $myCarousel = document.querySelector(‘.js-carousel’);
 
