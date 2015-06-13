@@ -190,8 +190,8 @@ var VNCarousel;
 
 							// Make drag feel "heavier" at the first and last pane
 							if (!settings.circular) {
-								if((currentSlide === 0 && ev.direction == 'right') ||
-								   (currentSlide === totalSlides - 1 && ev.direction == 'left')) {
+								if((currentSlide === 0 && panDirection == 'panright') ||
+								   (currentSlide === totalSlides - 1 && panDirection == 'panleft')) {
 									dragOffset *= 0.4;
 								}
 							}
