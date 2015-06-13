@@ -55,7 +55,8 @@ var VNCarousel;
 			$paginationFirst, $clonedSlide, totalSlides, currentSlide, slideWidth,
 			pctDragged, paginationNodeList, clickedElementIndex, peekingWidth,
 			carouselWidthPx, transitionEnd, has3dTransforms, carouselWidth, totalCloned,
-			peekingAmount, $carouselSecond, $carouselBeforeLast, slidesDragged, i;
+			peekingAmount, $carouselSecond, $carouselBeforeLast, slidesDragged,
+			panDirection, transitioning, i;
 
 		// Default settings
 		var settings = {
@@ -156,6 +157,7 @@ var VNCarousel;
 			$paginationFirst = $paginationItem[0];
 			$paginationFirst.classList.add('carousel-pagination-selected');
 
+			// Attach touch events
 			initTouchEvents();
 		}
 
@@ -165,64 +167,66 @@ var VNCarousel;
 
 			// Listen to events
 			createHammer.on('panstart panleft panright panend swiperight swipeleft', function(ev) {
-				switch(ev.type) {
-					case 'panstart':
-						// Get dragged amount
-						carouselWidthPx = $carouselSlide[0].getBoundingClientRect().width;
-					break;
+				if (!transitioning) {
+					switch(ev.type) {
+						case 'panstart':
+							// Get dragged amount
+							carouselWidthPx = $carouselSlide[0].getBoundingClientRect().width;
+						break;
 
-					case 'panright':
-					case 'panleft':
-						// Get pct dragged
-						pctDragged = ev.deltaX/carouselWidthPx;
+						case 'panright':
+						case 'panleft':
+							// Get pct dragged
+							pctDragged = ev.deltaX/carouselWidthPx;
 
-						// Get pan direction
-						panDirection = ev.type;
+							// Get pan direction
+							panDirection = ev.type;
 
-						// Move with the finger
-						var slideOffset = slideWidth * (currentSlide - 1);
-						var dragOffset = -pctDragged * slideWidth;
+							// Move with the finger
+							var slideOffset = slideWidth * (currentSlide - 1);
+							var dragOffset = -pctDragged * slideWidth;
 
-						// Make drag feel "heavier" at the first and last pane
-						if (!settings.circular) {
-							if((currentSlide === 0 && ev.direction == 'right') ||
-							   (currentSlide === totalSlides - 1 && ev.direction == 'left')) {
-								dragOffset *= 0.4;
+							// Make drag feel "heavier" at the first and last pane
+							if (!settings.circular) {
+								if((currentSlide === 0 && ev.direction == 'right') ||
+								   (currentSlide === totalSlides - 1 && ev.direction == 'left')) {
+									dragOffset *= 0.4;
+								}
 							}
-						}
 
-						// Drag carousel
-						setCarouselOffset(dragOffset + slideOffset + slideWidth - peekingWidth);
+							// Drag carousel
+							setCarouselOffset(dragOffset + slideOffset + slideWidth - peekingWidth);
 
-						// Disable browser scrolling
-						ev.preventDefault();
-					break;
+							// Disable browser scrolling
+							ev.preventDefault();
+						break;
 
-					case 'swipeleft':
-						movetoAdjacent(-1);
-						createHammer.stop(true);
-					break;
+						case 'swipeleft':
+							movetoAdjacent(-1);
+							createHammer.stop(true);
+						break;
 
-					case 'swiperight':
-						movetoAdjacent(1);
-						createHammer.stop(true);
-					break;
+						case 'swiperight':
+							movetoAdjacent(1);
+							createHammer.stop(true);
+						break;
 
-					case 'panend':
-						// If more then 50% dragged, move slide
-						if (Math.abs(pctDragged) > 0.5) {
-							slidesDragged = Math.abs(Math.round(pctDragged));
+						case 'panend':
+							// If more then 50% dragged, move slide
+							if (Math.abs(pctDragged) > 0.5) {
+								slidesDragged = Math.abs(Math.round(pctDragged));
 
-							if (panDirection == 'panright') {
-								moveToSlide(currentSlide - slidesDragged, true);
+								if (panDirection == 'panright') {
+									moveToSlide(currentSlide - slidesDragged, true);
+								} else {
+									moveToSlide(currentSlide + slidesDragged, true);
+								}
+							// If not, move back to current slide
 							} else {
-								moveToSlide(currentSlide + slidesDragged, true);
+								moveToSlide(currentSlide, true);
 							}
-						// If not, move back to current slide
-						} else {
-							moveToSlide(currentSlide, true);
-						}
-					break;
+						break;
+					}
 				}
 			});
 		}
@@ -276,12 +280,16 @@ var VNCarousel;
 		}
 
 		function movetoAdjacent(direction) {
-			if (direction < 0) {
-				currentSlide += 1;
-			} else {
-				currentSlide -= 1;
+			if (!transitioning) {
+				transitioning = true;
+
+				if (direction < 0) {
+					currentSlide += 1;
+				} else {
+					currentSlide -= 1;
+				}
+				moveToSlide(currentSlide, true);	
 			}
-			moveToSlide(currentSlide, true);	
 		}
 
 		function moveFromCloned() {
@@ -337,6 +345,7 @@ var VNCarousel;
 			} else {
 				updatePagination(currentSlide);
 			}
+			transitioning = false;
 		});
 	};
 }());

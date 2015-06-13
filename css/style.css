@@ -63,6 +63,14 @@
 
 /* Example */
 
+body {
+	background-color: #222;
+}
+
+.carousel-pagination-item:after {
+	background-color: #ddd;
+}
+
 .carousel {
 	position: relative;
 	margin: 2em 0;
@@ -70,13 +78,14 @@
 
 .carousel-slide {
 	box-sizing: border-box;
+	-webkit-transform: scale(.9);
 	transform: scale(.9);
 	opacity: .5;
 }
 
 .slide-wrapper {
 	padding-top: 56.25%;
-	background-color: #eee;
+	background-color: #111;
 	background-position: center center;
 	background-size: cover;
 	color: #333;
@@ -85,6 +94,7 @@
 }
 
 .carousel-slide-selected {
+	-webkit-transform: scale(1);
 	transform: scale(1);
 	opacity: 1;
 }
