@@ -9,6 +9,17 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 - Supports custom classes
 
 ## Usage
+1. This is a bullet.
+2. This is the end of the first bullet list, with a fenced code block following:
+
+```
+Code
+More Code
+```
+
+3. This is the start of a new bullet list. Hey, where is my fenced code? ```
+Code
+More Code
 1. Add your slides, pagination and prev/next buttons to the HTML:
 
 ````HTML
