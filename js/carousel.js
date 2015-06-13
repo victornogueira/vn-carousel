@@ -159,7 +159,7 @@ var VNCarousel;
 			initTouchEvents();
 		}
 
-		function initTouchEvents(ev) {
+		function initTouchEvents() {
 			// Create hammer
 			var createHammer = new Hammer($slidesWrapper);
 
