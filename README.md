@@ -21,7 +21,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 			<div>Slide 2</div>
 			<div>Slide 3</div>
 		</div>
-		 <!-- Navigation buttons and pagination are optional -->
+		<!-- Navigation buttons and pagination are optional -->
 		<button class=“js-carousel-prev”>Previous</button>
 		<button class=“js-carousel-next”>Next</button>
 		<div class=“js-carousel-pagination”></div>
@@ -38,7 +38,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 
-3. Call the VNCarousel function and setup the options:
+3. Call the carousel function and configure the options:
 
 	```Javascript
 	
