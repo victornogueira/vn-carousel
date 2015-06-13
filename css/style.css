@@ -43,17 +43,20 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: .5rem;
-	height: .5rem;
-	margin-left: -.25rem;
-	margin-top: -.25rem;
+	width: .375rem;
+	height: .375rem;
+	margin-left: -.1875rem;
+	margin-top: -.1875rem;
 	background-color: #000;
 	border-radius: 50%;
 	opacity: .2;
+	transition: .3s;
 }
 
 .carousel-pagination-selected:after {
 	opacity: 1;
+	-webkit-transform: scale(1.75);
+	transform: scale(1.75);
 }
 
 .carousel-transition,
@@ -65,10 +68,6 @@
 
 body {
 	background-color: #222;
-}
-
-.carousel-pagination-item:after {
-	background-color: #ddd;
 }
 
 .carousel {
@@ -123,4 +122,8 @@ body {
 .carousel-pagination {
 	text-align: center;
 	margin-top: 1em;
+}
+
+.carousel-pagination-item:after {
+	background-color: #ddd;
 }
