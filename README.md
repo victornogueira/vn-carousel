@@ -35,7 +35,7 @@ A simple, jQuery-free, carousel made with the help of Hammer.js.
 </div>
 ````
 
-2. At the bottom of the page, before the </body> tag, add the scripts:
+2. At the bottom of the page, before the `</body>` tag, add the scripts:
 ````HTML
 	<script src=“js/hammer.min.js”></script>
 	<script src=“js/carousel.min.js”></script>
