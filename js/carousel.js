@@ -56,11 +56,11 @@ var VNCarousel;
 			pctDragged, paginationNodeList, clickedElementIndex, peekingWidth,
 			carouselWidthPx, transitionEnd, has3dTransforms, carouselWidth, totalCloned,
 			peekingAmount, $carouselSecond, $carouselBeforeLast, slidesDragged,
-			panDirection, slideBeforeMoving, transitioning, i;
+			slideBeforeMoving, transitioning, i;
 
 		// Default settings
 		var settings = {
-			circular: true,
+			infinite: true,
 			slidesWrapper: '.js-carousel-slides-wrapper',
 			carouselPrev: '.js-carousel-prev',
 			carouselNext: '.js-carousel-next',
@@ -86,7 +86,7 @@ var VNCarousel;
 			$carouselLast       = $slidesWrapper.children[totalSlides-1];
 
 			// If carousel is infinite...
-			if (settings.circular) {
+			if (settings.infinite) {
 				// Clone 2 first and 2 last
 				var $clonedFirst       = $carouselFirst.cloneNode(true);
 				var $clonedSecond      = $carouselSecond.cloneNode(true);
@@ -146,7 +146,7 @@ var VNCarousel;
 			}
 
 			// Position slides
-			if (settings.circular) {
+			if (settings.infinite) {
 				moveToSlide(2);
 			} else {
 				moveToSlide(0);
@@ -165,7 +165,12 @@ var VNCarousel;
 
 		function initTouchEvents() {
 			// Create hammer
-			var createHammer = new Hammer($slidesWrapper);
+			var createHammer = new Hammer.Manager($slidesWrapper, {
+			    recognizers: [
+			        [Hammer.Pan, { direction: Hammer.DIRECTION_HORIZONTAL }],
+			        [Hammer.Swipe,{ direction: Hammer.DIRECTION_HORIZONTAL }],
+			    ]
+			});
 
 			// Listen to events
 			createHammer.on('panstart panleft panright panend swiperight swipeleft', function(ev) {
@@ -177,27 +182,26 @@ var VNCarousel;
 						break;
 
 						case 'panright':
-						case 'panleft':
+						case 'panleft':						
 							// Get pct dragged
 							pctDragged = ev.deltaX/carouselWidthPx;
 
-							// Get pan direction
-							panDirection = ev.type;
+							// Get current carousel position
+							var slideOffset = (slideWidth * currentSlide) - peekingWidth;
 
 							// Move with the finger
-							var slideOffset = slideWidth * (currentSlide - 1);
 							var dragOffset = -pctDragged * slideWidth;
 
 							// Make drag feel "heavier" at the first and last pane
-							if (!settings.circular) {
-								if((currentSlide === 0 && panDirection == 'panright') ||
-								   (currentSlide === totalSlides - 1 && panDirection == 'panleft')) {
-									dragOffset *= 0.2;
+							if (!settings.infinite) {
+								if((currentSlide === 0 && ev.deltaX > 0) ||
+								   (currentSlide === totalSlides - 1 && ev.deltaX < 0)) {
+									dragOffset *= 0.4;
 								}
 							}
 
 							// Drag carousel
-							setCarouselOffset(dragOffset + slideOffset + slideWidth - peekingWidth);
+							setCarouselOffset(dragOffset + slideOffset);
 
 							// Disable browser scrolling
 							ev.preventDefault();
@@ -218,7 +222,7 @@ var VNCarousel;
 							if (Math.abs(pctDragged) > 0.5) {
 								slidesDragged = Math.abs(Math.round(pctDragged));
 
-								if (panDirection == 'panright') {
+								if (ev.deltaX > 0) {
 									moveToSlide(currentSlide - slidesDragged, true);
 								} else {
 									moveToSlide(currentSlide + slidesDragged, true);
@@ -251,7 +255,7 @@ var VNCarousel;
 
 		function moveToSlide(slide, transition) {
 			// Move to slide
-			if (settings.circular) {
+			if (settings.infinite) {
 				slide = Math.max(1, Math.min(slide, totalSlides - 2));
 			} else {
 				slide = Math.max(0, Math.min(slide, totalSlides - 1));
@@ -275,7 +279,7 @@ var VNCarousel;
 					$paginationItem[i].classList.remove('carousel-pagination-selected');	
 				}
 				
-				if (settings.circular) {
+				if (settings.infinite) {
 					$paginationItem[slide-1].classList.add('carousel-pagination-selected');
 				} else {
 					$paginationItem[slide].classList.add('carousel-pagination-selected');
@@ -288,9 +292,9 @@ var VNCarousel;
 				slideBeforeMoving = currentSlide;
 
 				if (direction < 0) {
-					currentSlide += 1;
+					currentSlide++;
 				} else {
-					currentSlide -= 1;
+					currentSlide--;
 				}
 
 				moveToSlide(currentSlide, true);
@@ -314,7 +318,7 @@ var VNCarousel;
 		function paginationClick(elem) {
 			paginationNodeList = Array.prototype.slice.call(elem.parentNode.children);
 
-			if (settings.circular) {
+			if (settings.infinite) {
 				clickedElementIndex = paginationNodeList.indexOf(elem) + 2;
 			} else {
 				clickedElementIndex = paginationNodeList.indexOf(elem);
@@ -354,7 +358,7 @@ var VNCarousel;
 		}
 
 		$slidesWrapper.addEventListener(transitionEnd,function() {
-			if (settings.circular) {
+			if (settings.infinite) {
 				moveFromCloned();
 				updatePagination(currentSlide-1);
 			} else {
