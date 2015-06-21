@@ -18,7 +18,6 @@
 
 .carousel-slide {
 	float: left;
-	will-change: transform;
 }
 
 .carousel-pagination-item {
@@ -80,7 +79,6 @@
 .slide-wrapper {
 	padding-top: 56.25%;
 	background-color: #111;
-	background-position: center center;
 	background-size: cover;
 	color: #333;
 	font-size: 20em;
@@ -91,24 +89,4 @@
 	-webkit-transform: scale(1);
 	transform: scale(1);
 	opacity: 1;
-}
-
-.carousel-arrow {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	width: 10%;
-	border: 0;
-	background: transparent;
-	outline: 0;
-	text-indent: -9999px;
-	overflow: hidden;
-}
-
-.carousel-arrow-prev {
-	left: 0;
-}
-
-.carousel-arrow-next {
-	right: 0;
 }

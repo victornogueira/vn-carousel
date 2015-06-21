@@ -12,13 +12,12 @@ module.exports = function(grunt) {
         connect: {
             server: {
                 options: {
-                    open: true,
-                    hostname: '192.168.1.8',
-                    port: 9000
+                    hostname: '0.0.0.0',
+                    port: 8888,
+                    livereload: 35729
                 }
             }
         },
-
         watch: {
             scripts: {
                 files: ['js/*.js'],
