@@ -15,16 +15,16 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 
 	```HTML
 	
-	<div class=“js-carousel”>
-		<div class=“js-carousel-slides-wrapper”>
+	<div class="js-carousel">
+		<div class="js-carousel-slides-wrapper">
 			<div>Slide 1</div>
 			<div>Slide 2</div>
 			<div>Slide 3</div>
 		</div>
 		<!-- Navigation buttons and pagination are optional -->
-		<button class=“js-carousel-prev”>Previous</button>
-		<button class=“js-carousel-next”>Next</button>
-		<div class=“js-carousel-pagination”></div>
+		<button class="js-carousel-prev">Previous</button>
+		<button class="js-carousel-next">Next</button>
+		<div class="js-carousel-pagination"></div>
 	</div>
 	
 	```
@@ -33,8 +33,8 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 
 	```HTML
 	
-	<script src=“js/hammer.min.js”></script>
-	<script src=“js/carousel.min.js”></script>
+	<script src="js/hammer.min.js"></script>
+	<script src="js/carousel.min.js"></script>
 	
 	```
 
