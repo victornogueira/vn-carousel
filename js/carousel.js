@@ -65,6 +65,7 @@ var VNCarousel;
 				carouselPrev: '.js-carousel-prev',
 				carouselNext: '.js-carousel-next',
 				carouselPagination: '.js-carousel-pagination',
+				slidesPerPage: 2,
 				peekingPercentage: 0 // 0 to 20
 			};
 
@@ -111,7 +112,7 @@ var VNCarousel;
 				carouselWidth      = 100/totalSlides;
 				peekingAmount      = Math.max(0, Math.min(settings.peekingPercentage, 20))/100;
 				peekingWidth       = carouselWidth * peekingAmount;
-				slideWidth         = carouselWidth - peekingWidth * 2;
+				slideWidth         = (carouselWidth - peekingWidth * 2)/settings.slidesPerPage;
 				transitionEnd      = transitionEndEventName();
 				has3dTransforms    = supports3dTransforms();
 
@@ -130,7 +131,7 @@ var VNCarousel;
 					$paginationItem = $paginationWrapper.children;	
 
 					// Clone pagination elements
-					for (i = 0; i < totalSlides - totalCloned - 1; i++) {
+					for (i = 0; i < ((totalSlides - totalCloned )/settings.slidesPerPage) - 1; i++) {
 						$clonedPagination = $paginationItem[0].cloneNode(true);
 						$paginationItem[0].parentNode.appendChild($clonedPagination);
 					}
@@ -198,7 +199,6 @@ var VNCarousel;
 							break;
 
 							case 'swipeleft':
-								console.log('swiped')
 								movetoAdjacent(-1);
 								createHammer.stop(true);
 							break;
@@ -247,7 +247,7 @@ var VNCarousel;
 				if (settings.infinite) {
 					slide = Math.max(1, Math.min(slide, totalSlides - 2));
 				} else {
-					slide = Math.max(0, Math.min(slide, totalSlides - 1));
+					slide = Math.max(0, Math.min(slide, (totalSlides/settings.slidesPerPage) - 1));
 				}
 
 				// Switch class to selected slide
@@ -269,7 +269,7 @@ var VNCarousel;
 
 				// Update current slide
 				currentSlide = slide;
-				setCarouselOffset((slideWidth * slide) - peekingWidth, transition);
+				setCarouselOffset((slideWidth * slide * settings.slidesPerPage) - peekingWidth, transition);
 			}
 
 			function updatePagination(slide) {
