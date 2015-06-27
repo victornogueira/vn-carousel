@@ -56,7 +56,9 @@ var VNCarousel;
 				$paginationFirst, totalSlides, currentSlide, slideWidth, pctDragged,
 				paginationNodeList, clickedElementIndex, peekingWidth, carouselWidthPx,
 				transitionEnd, has3dTransforms, carouselWidth, totalCloned, peekingAmount,
-				$carouselSecond, $carouselBeforeLast, slideBeforeMoving, transitioning, i;
+				$carouselSecond, $carouselBeforeLast, slideBeforeMoving, transitioning, i,
+				initCarousel, moveToSlide,initTouchEvents, setCarouselOffset,
+				movetoAdjacent, updatePagination, moveFromCloned, paginationClick;
 
 			// Default settings
 			var settings = {
@@ -76,7 +78,7 @@ var VNCarousel;
 			}
 
 			// Configure carousel's initial state
-			function initCarousel() {
+			initCarousel = function() {
 				$slidesWrapper      = $carousel.querySelector(settings.slidesWrapper);
 				totalSlides         = $slidesWrapper.children.length;
 				totalCloned         = 0;
@@ -156,9 +158,9 @@ var VNCarousel;
 
 				// Attach touch events
 				initTouchEvents();
-			}
+			};
 
-			function initTouchEvents() {
+			initTouchEvents = function() {
 				// Create hammer
 				var createHammer = new Hammer($slidesWrapper);
 
@@ -213,9 +215,9 @@ var VNCarousel;
 						}
 					}
 				});
-			}
+			};
 
-			function setCarouselOffset(distance, transition) {
+			setCarouselOffset = function(distance, transition) {
 				$slidesWrapper.classList.remove('carousel-transition');
 
 				if (transition) {
@@ -229,9 +231,9 @@ var VNCarousel;
 					$slidesWrapper.style.transform = 'translate(' + (distance * -1) + '%,0)';
 					$slidesWrapper.style.webkitTransform = 'translate(' + (distance * -1) + '%,0)';
 				}
-			}
+			};
 
-			function moveToSlide(slide, transition) {
+			moveToSlide = function(slide, transition) {
 				// Move to slide
 				if (settings.infinite) {
 					slide = Math.max(1, Math.min(slide, totalSlides - 2));
@@ -259,9 +261,9 @@ var VNCarousel;
 				// Update current slide
 				currentSlide = slide;
 				setCarouselOffset(slideWidth * slide - peekingWidth, transition);
-			}
+			};
 
-			function updatePagination(slide) {
+			updatePagination = function(slide) {
 				if ($paginationWrapper) {
 					for (i = 0; i < $paginationItem.length; i++) {
 						$paginationItem[i].classList.remove('carousel-pagination-selected');	
@@ -273,9 +275,9 @@ var VNCarousel;
 						$paginationItem[slide].classList.add('carousel-pagination-selected');
 					}
 				}
-			}
+			};
 
-			function movetoAdjacent(direction) {
+			movetoAdjacent = function(direction) {
 				if (!transitioning) {
 					slideBeforeMoving = currentSlide;
 
@@ -291,9 +293,9 @@ var VNCarousel;
 						transitioning = true;
 					}
 				}
-			}
+			};
 
-			function moveFromCloned() {
+			moveFromCloned = function() {
 				if (currentSlide === 1) {
 					moveToSlide(totalSlides - 3);
 					currentSlide = totalSlides - 3;
@@ -301,9 +303,9 @@ var VNCarousel;
 					moveToSlide(2);
 					currentSlide = 2;
 				}
-			}
+			};
 
-			function paginationClick(elem) {
+			paginationClick = function(elem) {
 				paginationNodeList = Array.prototype.slice.call(elem.parentNode.children);
 
 				if (settings.infinite) {
@@ -314,7 +316,7 @@ var VNCarousel;
 
 				moveToSlide(clickedElementIndex, true);
 				currentSlide = clickedElementIndex;	
-			}
+			};
 
 			initCarousel();
 
@@ -369,5 +371,5 @@ var VNCarousel;
 				transitioning = false;
 			});
 		}
-	}
+	};
 }());
