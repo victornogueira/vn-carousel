@@ -60,7 +60,6 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 For multiple carousels, simply select all elements with a given class and run the function inside a for loop:
 
 	```Javascript
-	
 	$myCarousel = document.querySelectorAll('.js-carousel');
 
 	for (i = 0; i < $myCarousel.length; i++) {
@@ -71,7 +70,6 @@ For multiple carousels, simply select all elements with a given class and run th
 			peekingPercentage: 10 // 0 to 20
 		});
 	}
-	
 	```
 
 ## Browser support
