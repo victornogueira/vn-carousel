@@ -56,9 +56,9 @@ var VNCarousel;
 				$paginationFirst, totalSlides, currentSlide, slideWidth, pctDragged,
 				paginationNodeList, clickedElementIndex, peekingWidth, carouselWidthPx,
 				transitionEnd, has3dTransforms, carouselWidth, totalCloned, peekingAmount,
-				$carouselSecond, $carouselBeforeLast, slideBeforeMoving, transitioning, i,
+				$carouselSecond, $carouselBeforeLast, slideBeforeMoving, transitioning,
 				initCarousel, moveToSlide,initTouchEvents, setCarouselOffset,
-				movetoAdjacent, updatePagination, moveFromCloned, paginationClick;
+				movetoAdjacent, updatePagination, moveFromCloned, paginationClick, i;
 
 			// Default settings
 			var settings = {
@@ -79,9 +79,9 @@ var VNCarousel;
 
 			// Configure carousel's initial state
 			initCarousel = function() {
-				$slidesWrapper      = $carousel.querySelector(settings.slidesWrapper);
-				totalSlides         = $slidesWrapper.children.length;
-				totalCloned         = 0;
+				$slidesWrapper = $carousel.querySelector(settings.slidesWrapper);
+				totalSlides    = $slidesWrapper.children.length;
+				totalCloned    = 0;
 
 				// If carousel is infinite...
 				if (settings.infinite) {
@@ -91,10 +91,10 @@ var VNCarousel;
 					$carouselLast       = $slidesWrapper.children[totalSlides-1];
 
 					// Clone 2 first and 2 last
-					var $clonedFirst       = $carouselFirst.cloneNode(true);
-					var $clonedSecond      = $carouselSecond.cloneNode(true);
-					var $clonedBeforeLast  = $carouselBeforeLast.cloneNode(true);
-					var $clonedLast        = $carouselLast.cloneNode(true);
+					var $clonedFirst      = $carouselFirst.cloneNode(true);
+					var $clonedSecond     = $carouselSecond.cloneNode(true);
+					var $clonedBeforeLast = $carouselBeforeLast.cloneNode(true);
+					var $clonedLast       = $carouselLast.cloneNode(true);
 
 					// Append them at the edges
 					$slidesWrapper.appendChild($clonedFirst);
@@ -128,6 +128,9 @@ var VNCarousel;
 				}
 
 				if ($paginationWrapper) {
+					// Add styling class for pagination
+					$paginationWrapper.classList.add('carousel-pagination');
+
 					// Create pagination element (dots)
 					$paginationWrapper.innerHTML = '<button class="carousel-pagination-item"></button>';
 					$paginationItem = $paginationWrapper.children;	
