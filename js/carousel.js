@@ -82,13 +82,14 @@ var VNCarousel;
 				$slidesWrapper      = $carousel.querySelector(settings.slidesWrapper);
 				totalSlides         = $slidesWrapper.children.length;
 				totalCloned         = 0;
-				$carouselFirst      = $slidesWrapper.children[0];
-				$carouselSecond     = $slidesWrapper.children[1];
-				$carouselBeforeLast = $slidesWrapper.children[totalSlides-2];
-				$carouselLast       = $slidesWrapper.children[totalSlides-1];
 
 				// If carousel is infinite...
 				if (settings.infinite) {
+					$carouselFirst      = $slidesWrapper.children[0];
+					$carouselSecond     = $slidesWrapper.children[1];
+					$carouselBeforeLast = $slidesWrapper.children[totalSlides-2];
+					$carouselLast       = $slidesWrapper.children[totalSlides-1];
+
 					// Clone 2 first and 2 last
 					var $clonedFirst       = $carouselFirst.cloneNode(true);
 					var $clonedSecond      = $carouselSecond.cloneNode(true);
@@ -101,15 +102,15 @@ var VNCarousel;
 					$slidesWrapper.insertBefore($clonedLast, $carouselFirst);
 					$slidesWrapper.insertBefore($clonedBeforeLast, $clonedLast);
 
-					// Total cloned...
-					totalCloned = 4;
+					// Calculate total cloned and update slide count
+					totalCloned = $slidesWrapper.children.length - totalSlides;
+					totalSlides = $slidesWrapper.children.length;
 				}
 
 				$carouselSlide     = $slidesWrapper.children;
 				$carouselPrev      = $carousel.querySelector(settings.carouselPrev);
 				$carouselNext      = $carousel.querySelector(settings.carouselNext);
 				$paginationWrapper = $carousel.querySelector(settings.carouselPagination);
-				totalSlides        = $carouselSlide.length;
 				carouselWidth      = 100/totalSlides;
 				peekingAmount      = Math.max(0, Math.min(settings.peekingPercentage, 20))/100;
 				peekingWidth       = carouselWidth * peekingAmount;
