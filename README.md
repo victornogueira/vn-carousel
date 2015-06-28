@@ -60,16 +60,18 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 For multiple carousels, simply select all elements with a given class and run the function inside a for loop:
 
 	```Javascript
-	$myCarousel = document.querySelectorAll('.js-carousel');
-
-	for (i = 0; i < $myCarousel.length; i++) {
-		VNCarousel($myCarousel[i],{
-			infinite: true,
-			slidesWrapper: '.js-carousel-slides-wrapper',
-			carouselPagination: '.js-carousel-pagination',
-			peekingPercentage: 10 // 0 to 20
-		});
-	}
+	
+	$myCarousel = document.querySelector('.js-carousel');
+	
+	VNCarousel($myCarousel,{
+		infinite: true,
+		slidesWrapper: '.js-carousel-slides-wrapper',
+		carouselPrev: '.js-carousel-prev',
+		carouselNext: '.js-carousel-next',
+		carouselPagination: '.js-carousel-pagination',
+		peekingPercentage: 10 // 0 to 20
+	});
+	
 	```
 
 ## Browser support
