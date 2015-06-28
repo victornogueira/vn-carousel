@@ -67,6 +67,8 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 		VNCarousel($myCarousel[i],{
 			infinite: true,
 			slidesWrapper: '.js-carousel-slides-wrapper',
+			carouselPrev: '.js-carousel-prev',
+			carouselNext: '.js-carousel-next',
 			carouselPagination: '.js-carousel-pagination',
 			peekingPercentage: 10 // 0 to 20
 		});
