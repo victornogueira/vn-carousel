@@ -54,6 +54,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	});
 	
 	```
+	
 ## Multiple carousels on a page
 
 For multiple carousels, simply select all elements with a given class and run the function inside a for loop:
