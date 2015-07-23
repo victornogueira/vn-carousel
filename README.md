@@ -59,6 +59,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 		carouselPrev: '.js-carousel-prev',
 		carouselNext: '.js-carousel-next',
 		carouselPagination: '.js-carousel-pagination',
+		slidesPerPage: 4,
 		peekingPercentage: 10 // 0 to 20
 	});
 	
