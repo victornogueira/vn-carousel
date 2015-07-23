@@ -3,6 +3,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 
 ## Features
 - Responsive and touch-enabled
+- Multiple slides per page
 - Desktop mouse dragging
 - Multiple carousels in one page
 - Supports custom classes
@@ -11,7 +12,15 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 
 ## Usage
 
-1. Add your slides, pagination and prev/next buttons to the HTML:
+1. Add the CSS before `</head>`:
+
+	```HTML
+	<head>
+		<link rel="stylesheet" href="css/carousel.css">
+		<title>Carousel</title>
+	</head>
+	```
+2. Add your slides, pagination and prev/next buttons to the HTML:
 
 	```HTML
 	
@@ -29,7 +38,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 
-2. At the bottom of the page, before the `</body>` tag, add the scripts:
+3. At the bottom of the page, before the `</body>` tag, add the scripts:
 
 	```HTML
 	
@@ -38,7 +47,7 @@ A simple jQuery-free carousel. Uses Hammer.js for handling touch events.
 	
 	```
 
-3. Call the carousel function and configure the options:
+4. Call the carousel function and configure the options:
 
 	```Javascript
 	
