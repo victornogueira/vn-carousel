@@ -94,8 +94,13 @@
 			var $myCarousel = document.querySelector('.js-carousel');
 
 			VNCarousel($myCarousel,{
-				slidesPerPage: 3,
-				peekingPercentage: 5
+				infinite: true,
+		        slidesWrapper: '.js-carousel-slides-wrapper',
+		        carouselPrev: '.js-carousel-prev',
+		        carouselNext: '.js-carousel-next',
+		        carouselPagination: '.js-carousel-pagination',
+		        slidesPerPage: 3,
+		        peekingPercentage: 10 // 0 to 20
 			});
 		</script>
 	</body>

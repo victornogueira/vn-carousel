@@ -25,6 +25,7 @@
 	appearance: none;
 	text-indent: -9999px;
 	overflow: hidden;
+	cursor: pointer;
 }
 
 .carousel-pagination-item:after {

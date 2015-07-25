@@ -69,22 +69,23 @@ var VNCarousel;
 				}
 			}
 
-			var $slidesWrapper = $carousel.querySelector(settings.slidesWrapper);
-			var $carouselSlide = $slidesWrapper.children;
-			var totalSlides    = $carouselSlide.length;
-			var totalPages     = totalSlides/settings.slidesPerPage;
-			var totalCloned    = 0;
+			// Initials
+			var $slidesWrapper     = $carousel.querySelector(settings.slidesWrapper);
+			var $carouselSlide     = $slidesWrapper.children;
+			var	$carouselPrev      = $carousel.querySelector(settings.carouselPrev);
+			var	$carouselNext      = $carousel.querySelector(settings.carouselNext);
+			var	$paginationWrapper = $carousel.querySelector(settings.carouselPagination);
+			var totalSlides        = $carouselSlide.length;
+			var totalPages         = totalSlides/settings.slidesPerPage;
+			var totalCloned        = 0;
+			var peekingAmount      = Math.max(0, Math.min(settings.peekingPercentage, 20))/100;
+			var transitionEnd      = transitionEndEventName();
+			var has3dTransforms    = supports3dTransforms();
 
-			var $carouselPrev, $carouselNext, $clonedPagination, $paginationWrapper,
-			    $paginationItem, $paginationFirst, slideWidth, pctDragged, paginationNodeList,
-			    clickedElementIndex, peekingWidth, carouselWidthPx, transitionEnd,
-			    has3dTransforms, carouselWidth, peekingAmount, transitioning, currentPage,
-			    initCarousel, moveToPage,addTouchListeners, setCarouselOffset, moveToAdjacent,
-			    updatePagination, moveFromCloned, paginationClick, buildCarousel,
-			    buildNoCarousel, buildPagination, addStylingClasses, cloneSlides, i;
+			var $paginationItem, slideWidth, peekingWidth, isTransitioning, currentPage, i;
 
 			// Init carousel
-			initCarousel = function() {
+			var initCarousel = function() {
 				addStylingClasses();
 
 				if (totalSlides > settings.slidesPerPage) {					
@@ -95,7 +96,7 @@ var VNCarousel;
 				}
 			};
 
-			addStylingClasses = function() {
+			var addStylingClasses = function() {
 				// Add styling classes for carousel and slides wrapper
 				$carousel.classList.add('carousel');
 				$slidesWrapper.classList.add('carousel-slides-wrapper');
@@ -106,21 +107,16 @@ var VNCarousel;
 				}
 			};
 
-			buildCarousel = function() {
+			var buildCarousel = function() {
 				// If carousel is infinite...
 				if (settings.infinite) {
 					cloneSlides();
 				}
+				
+				var carouselWidth = 100/totalSlides;
 
-				$carouselPrev      = $carousel.querySelector(settings.carouselPrev);
-				$carouselNext      = $carousel.querySelector(settings.carouselNext);
-				$paginationWrapper = $carousel.querySelector(settings.carouselPagination);
-				carouselWidth      = 100/totalSlides;
-				peekingAmount      = Math.max(0, Math.min(settings.peekingPercentage, 20))/100;
-				peekingWidth       = carouselWidth * peekingAmount;
-				slideWidth         = (carouselWidth - peekingWidth * 2)/settings.slidesPerPage;
-				transitionEnd      = transitionEndEventName();
-				has3dTransforms    = supports3dTransforms();
+				peekingWidth = carouselWidth * peekingAmount;
+				slideWidth   = (carouselWidth - peekingWidth * 2)/settings.slidesPerPage;
 
 				// Set the width for slides wrapper and each slide
 				$slidesWrapper.style.width = totalSlides * 100 + '%';
@@ -136,7 +132,7 @@ var VNCarousel;
 				addTouchListeners();
 			};
 
-			buildNoCarousel = function() {
+			var buildNoCarousel = function() {
 				for (i = 0; i < totalSlides; i++) {
 					$carouselSlide[i].style.width = 100/settings.slidesPerPage + '%';
 				}
@@ -144,7 +140,7 @@ var VNCarousel;
 				$carousel.classList.add('no-carousel');
 			};
 
-			cloneSlides = function() {
+			var cloneSlides = function() {
 				// Clone first slides and append to the end of list
 				for (i = 0; i <= settings.slidesPerPage; i++) {
 					var $firstSlides       = $carouselSlide[i];
@@ -168,7 +164,7 @@ var VNCarousel;
 				totalPages     = (totalSlides - totalCloned)/settings.slidesPerPage;
 			};
 
-			buildPagination = function() {
+			var buildPagination = function() {
 				// If there's a pagination indicator...
 				if ($paginationWrapper) {
 					// Add styling class for pagination
@@ -180,7 +176,7 @@ var VNCarousel;
 
 					// Clone pagination elements
 					for (i = 0; i < (totalSlides - totalCloned)/settings.slidesPerPage - 1; i++) {
-						$clonedPagination = $paginationItem[0].cloneNode(true);
+						var $clonedPagination = $paginationItem[0].cloneNode(true);
 						$paginationItem[0].parentNode.appendChild($clonedPagination);
 
 						// Print pagination index
@@ -188,18 +184,18 @@ var VNCarousel;
 					}
 
 					// Select first pagination item
-					$paginationFirst = $paginationItem[0];
+					var $paginationFirst = $paginationItem[0];
 					$paginationFirst.classList.add('carousel-pagination-selected');
 				}
 			};
 
-			addTouchListeners = function() {
-				// Create hammer
+			var addTouchListeners = function() {
 				var createHammer = new Hammer($slidesWrapper);
+				var carouselWidthPx, pctDragged;
 
 				// Listen to events
 				createHammer.on('panstart panleft panright panend', function(ev) {
-					if (!transitioning) {
+					if (!isTransitioning) {
 						switch(ev.type) {
 							case 'panstart':
 								// Get dragged amount
@@ -250,7 +246,7 @@ var VNCarousel;
 				});
 			};
 
-			setCarouselOffset = function(distance, transition) {
+			var setCarouselOffset = function(distance, transition) {
 				$slidesWrapper.classList.remove('carousel-transition');
 
 				if (transition) {
@@ -266,7 +262,7 @@ var VNCarousel;
 				}
 			};
 
-			moveToPage = function(page, transition) {
+			var moveToPage = function(page, transition) {
 				// Setting horizontal limits to the carousel
 				if (settings.infinite) {
 					page = Math.max(-1, Math.min(page, totalPages));
@@ -311,7 +307,7 @@ var VNCarousel;
 				setCarouselOffset(slideWidth * currentSlide - peekingWidth + slideWidth * totalCloned/2, transition);
 			};
 
-			updatePagination = function(page) {
+			var updatePagination = function(page) {
 				page = Math.ceil(page);
 
 				if ($paginationWrapper) {
@@ -331,8 +327,8 @@ var VNCarousel;
 				}
 			};
 
-			moveToAdjacent = function(direction) {
-				if (!transitioning) {
+			var moveToAdjacent = function(direction) {
+				if (!isTransitioning) {
 					var pageBeforeMoving  = currentPage;
 					var slidesRemainder   = (totalSlides - totalCloned) % settings.slidesPerPage;
 					var pageBeforeTheLast = Math.round(totalPages - 1 - slidesRemainder/settings.slidesPerPage);
@@ -350,12 +346,12 @@ var VNCarousel;
 					}
 
 					if (pageBeforeMoving !== currentPage) {
-						transitioning = true;
+						isTransitioning = true;
 					}
 				}
 			};
 
-			moveFromCloned = function() {
+			var moveFromCloned = function() {
 				// Check if at the first page
 				if (currentPage === -1) {
 					// Move to non-cloned slides
@@ -371,10 +367,9 @@ var VNCarousel;
 				}
 			};
 
-			paginationClick = function(elem) {
-				paginationNodeList = Array.prototype.slice.call(elem.parentNode.children);
-
-				clickedElementIndex = paginationNodeList.indexOf(elem);
+			var getPaginationClick = function(elem) {
+				var paginationNodeList  = Array.prototype.slice.call(elem.parentNode.children);
+				var clickedElementIndex = paginationNodeList.indexOf(elem);
 
 				moveToPage(clickedElementIndex, true);
 				currentPage = clickedElementIndex;	
@@ -406,7 +401,7 @@ var VNCarousel;
 					var clickedItem = e.target;
 
 					while(clickedItem != $paginationWrapper) {
-						paginationClick(clickedItem);
+						getPaginationClick(clickedItem);
 						clickedItem = clickedItem.parentNode;
 					}
 				});	
@@ -433,7 +428,7 @@ var VNCarousel;
 				} else {
 					updatePagination(currentPage);
 				}
-				transitioning = false;
+				isTransitioning = false;
 			});
 		}
 	};
