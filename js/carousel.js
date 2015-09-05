@@ -435,6 +435,21 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
   }
 };
 
+VNCarousel.prototype.keyboardEvents = function(e) {
+  var self = this;
+  var keyCode = e.keyCode;
+  var keyLeft = 37;
+  var keyRight = 39;
+
+  if (self.isFocused === true) {
+    if (keyCode === keyLeft) {
+      self.goToPrevPage();
+    } else if (keyCode === keyRight) {
+      self.goToNextPage();
+    }
+  }
+};
+
 VNCarousel.prototype.addUIListeners = function() {
   var self = this;
  
@@ -456,8 +471,17 @@ VNCarousel.prototype.addUIListeners = function() {
   // Add touch events with Hammer.js
   self.createHammer = new Hammer(self.slidesWrapper);
   self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
-};
 
+  document.addEventListener('click', function(e) {
+    self.isFocused = false;
+
+    if (self.elem.contains(e.target)) {
+      self.isFocused = true;
+    }
+  });
+
+  document.addEventListener('keyup', self.keyboardEvents.bind(self));
+};
 
 /* Utils
 ------------------------------------------------------------------------------------------------ */
