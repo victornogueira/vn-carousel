@@ -87,76 +87,47 @@
 			<button class="carousel-arrow js-carousel-prev">Previous</button>
 			<button class="carousel-arrow js-carousel-next">Next</button>
 		</div>
-		<div class="js-carousel2">
-			<div class="js-carousel-slides-wrapper">
-				<div>
-					<div class="slide-wrapper">
-						1
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						2
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						3
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						4
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						5
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						6
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						7
-					</div>
-				</div>
-			</div>
-			<div class="js-carousel-pagination"></div>
-			<button class="carousel-arrow js-carousel-prev">Previous</button>
-			<button class="carousel-arrow js-carousel-next">Next</button>
-		</div>
 		<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 		<script src="js/hammer.min.js"></script>
 		<script src="js/carousel.js"></script>
 		<script>
 
 			var myCarousel = document.querySelector('.js-carousel');
-			var myCarousel2 = document.querySelector('.js-carousel2');
 
 			var c = new VNCarousel(myCarousel, {
-				slidesPerPage: 3,
-				peekingPercentage: 5,
+				slidesPerPage: 1,
+				peekingPercentage: 10,
 				onInit: function() {
 				},
 				beforeChange: function() {
 				},
 				afterChange: function() {
-				}
-			});
-
-			var c2 = new VNCarousel(myCarousel2, {
-				slidesPerPage: 4,
-				infinite: false,
-				onInit: function() {
 				},
-				beforeChange: function() {	
-				},
-				afterChange: function() {
-				}
+				responsive: [{
+			      breakpoint: 450,
+			      settings: {
+			      	slidesPerPage: 2
+			      }
+			    },
+			    {
+			      breakpoint: 600,
+			      settings: {
+			      	slidesPerPage: 3,
+			      	peekingPercentage: 5
+			      }
+			    },
+			    {
+		    	  breakpoint: 1000,
+		    	  settings: {
+		    	  	slidesPerPage: 4
+		    	  }
+			    },
+			    {
+		    	  breakpoint: 1200,
+		    	  settings: {
+		    	  	slidesPerPage: 5
+		    	  }
+			    }]
 			});
 		</script>
 	</body>

@@ -1,39 +1,51 @@
 var VNCarousel = function(elem, settings) {
+  'use strict';
+
   var self = this;
+  var property;
 
   self.defaults = {
-    infinite: true,
     slidesWrapper: '.js-carousel-slides-wrapper',
     carouselPrev: '.js-carousel-prev',
     carouselNext: '.js-carousel-next',
     carouselPagination: '.js-carousel-pagination',
-    peekingPercentage: 0,
+    infinite: true,
     slidesPerPage: 1,
+    peekingPercentage: 0,
+    responsive: [],
     onInit: function() {},
     afterChange: function() {},
     beforeChange: function() {}
   };
 
   // Override default settings
-  for (var property in settings) {
+  for (property in settings) {
     if (settings.hasOwnProperty(property)) {
       self.defaults[property] = settings[property];
     }
   }
 
+  self.getCurrentBreakpoint();
+
+  // Override properties with the ones inside breakpoints
+  for (property in self.defaults) {
+    if (self.defaults.hasOwnProperty(property)) {
+      self[property] = self.listenToBreakpoints(property);
+    }
+  }
+
   self.elem                = elem;
-  self.slidesWrapper       = elem.querySelector(self.defaults.slidesWrapper);
-  self.carouselPrev        = elem.querySelector(self.defaults.carouselPrev);
-  self.carouselNext        = elem.querySelector(self.defaults.carouselNext);
-  self.paginationWrapper   = elem.querySelector(self.defaults.carouselPagination);
+  self.slidesWrapper       = elem.querySelector(self.slidesWrapper);
+  self.carouselPrev        = elem.querySelector(self.carouselPrev);
+  self.carouselNext        = elem.querySelector(self.carouselNext);
+  self.paginationWrapper   = elem.querySelector(self.carouselPagination);
+  self.peekingPercentage   = self.peekingPercentage/100;
   self.carouselSlide       = self.slidesWrapper.children;
   self.totalChildren       = self.carouselSlide.length;
-  self.slidesPerPage       = Math.round(Math.max(1, Math.min(self.defaults.slidesPerPage, self.totalChildren)));
   self.totalPagesFraction  = self.totalChildren/self.slidesPerPage;
   self.totalPages          = Math.ceil(self.totalPagesFraction);
   self.totalCloned         = 0;
   self.totalSlides         = self.totalChildren - self.totalCloned;
-  self.peekingAmount       = Math.max(0, Math.min(self.defaults.peekingPercentage, 20))/100;
   self.transitionEnd       = self.transitionEndEventName();
   self.slidesRemainder     = self.totalSlides % self.slidesPerPage;
 
@@ -57,19 +69,19 @@ VNCarousel.prototype.init = function() {
     self.buildNoCarousel();
   }
 
-  self.defaults.onInit();
+  self.onInit();
 };
 
 VNCarousel.prototype.buildCarousel = function() {
   var self = this;
 
-  if (self.defaults.infinite) {
+  if (self.infinite) {
     self.cloneSlides();
   }
   
   var carouselWidth = 100/self.totalChildren;
 
-  self.peekingWidth = carouselWidth * self.peekingAmount;
+  self.peekingWidth = carouselWidth * self.peekingPercentage;
   self.carouselWidth   = (carouselWidth - self.peekingWidth * 2)/self.slidesPerPage;
 
   self.slidesWrapper.style.width = self.totalChildren * 100 + '%';
@@ -79,7 +91,7 @@ VNCarousel.prototype.buildCarousel = function() {
   }
 
   self.buildPagination();
-  self.addUIListeners(self.defaults.afterChange);
+  self.addUIListeners(self.afterChange);
 };
 
 VNCarousel.prototype.buildNoCarousel = function() {
@@ -145,58 +157,44 @@ VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
 
 VNCarousel.prototype.goToPage = function(page, transition) {
   var self = this;
-  var i;
 
-  self.pageBeforeMoving = self.currentPageFraction;
+  if (!self.transitioning) {
+    self.pageBeforeMoving = self.currentPageFraction;
 
-  // Remove peeking classes
-  for (i = 0; i < self.totalChildren; i++) {
-    self.carouselSlide[i].classList.remove('carousel-slide-prev');
-    self.carouselSlide[i].classList.remove('carousel-slide-next');
-  }
-
-  // Set horizontal limits to the carousel
-  if (self.defaults.infinite) {
-    page = Math.max(0, Math.min(page, self.totalPagesFraction + 1));
-  } else {
-    page = Math.max(1, Math.min(page, self.totalPagesFraction));
-  }
-
-  // If moving to last page, check if page is not complete and move accordingly
-  if (self.slidesRemainder !== 0 && page === self.totalPages) {
-    page -= 1 - (self.slidesRemainder/self.slidesPerPage);
-
-  // Avoid stopping on fraction page, if not on the last page
-  } else if (page < self.totalPages - 1) {
-    page = Math.ceil(page);
-  }
-
-  if (self.pageBeforeMoving !== page) {
-    // Callback only if carousel is going to transition
-    if (transition !== false) {
-      self.defaults.beforeChange();
+    // Set horizontal limits to the carousel
+    if (self.infinite) {
+      page = Math.max(0, Math.min(page, self.totalPagesFraction + 1));
+    } else {
+      page = Math.max(1, Math.min(page, self.totalPagesFraction));
     }
 
-    self.currentPageFraction = page;
-    self.currentPage         = Math.ceil(page);
-    self.firstOfCurrentPage  = Math.round((page - 1) * self.slidesPerPage + 1);
-    self.currentSlides       = self.getCurrentSlides();
+    // If moving to last page, check if page is not complete and move accordingly
+    if (self.slidesRemainder !== 0 && page === self.totalPages) {
+      page -= 1 - (self.slidesRemainder/self.slidesPerPage);
 
-    self.styleCurrentSlides();
+    // Avoid stopping on fraction page, if not on the last page
+    } else if (page < self.totalPages - 1) {
+      page = Math.ceil(page);
+    }
 
-    // Update after slide change
-    var updatePeekingInverval = setInterval(function() {
-      if (self.pageBeforeMoving !== page) {
-        self.selectPeekingSlides();
-
-        clearInterval(updatePeekingInverval);
+    if (self.pageBeforeMoving !== page) {
+      // Callback only if carousel is going to transition
+      if (transition !== false) {
+        self.transitioning = true;
+        self.beforeChange();
       }
-    }, 200);
-  }
 
-  // Move carousel
-  var slidePosition = self.carouselWidth * (self.firstOfCurrentPage + self.totalCloned/2 - 1) - self.peekingWidth;
-  self.setCarouselOffset(slidePosition, transition);
+      self.currentPageFraction = page;
+      self.currentPage         = Math.ceil(page);
+      self.firstOfCurrentPage  = Math.round((page - 1) * self.slidesPerPage + 1);
+      self.currentSlides       = self.getCurrentSlides();
+
+      self.styleCurrentSlides();
+    }
+
+    // Move carousel
+    self.setCarouselOffset(self.getPageOffset(), transition);
+  }
 };
 
 VNCarousel.prototype.goToSlide = function(slide) {
@@ -260,24 +258,17 @@ VNCarousel.prototype.styleCurrentSlides = function() {
 
   for (i = 0; i < self.totalChildren; i++) {
     self.carouselSlide[i].classList.remove('carousel-slide-selected');
+    self.carouselSlide[i].classList.remove('carousel-slide-prev');
+    self.carouselSlide[i].classList.remove('carousel-slide-next');
   }
 
   // Add class to current
   for (i = 0; i < self.slidesPerPage; i++) {
     var currentSlides = self.firstOfCurrentPage + self.totalCloned/2 + i - 1;
     self.carouselSlide[currentSlides].classList.add('carousel-slide-selected');
-  } 
-};
-
-VNCarousel.prototype.selectPeekingSlides = function() {
-  var self = this;
-  var i;
-
-  for (i = 0; i < self.totalChildren; i++) {
-    self.carouselSlide[i].classList.remove('carousel-slide-prev');
-    self.carouselSlide[i].classList.remove('carousel-slide-next');
   }
 
+  // Add class to prev/next
   var selectedSlides    = self.slidesWrapper.querySelectorAll('.carousel-slide-selected');
   var firstCurrentSlide = selectedSlides[0];
   var lastCurrentSlide  = selectedSlides[self.slidesPerPage - 1];
@@ -324,7 +315,7 @@ VNCarousel.prototype.updatePagination = function(page) {
       self.paginationItem[i].classList.remove('carousel-pagination-selected');  
     }
 
-    if (self.defaults.infinite && page === 0) {
+    if (self.infinite && page === 0) {
       self.paginationItem[self.totalPages - 1].classList.add('carousel-pagination-selected');
     } else {
       self.paginationItem[page - 1].classList.add('carousel-pagination-selected');  
@@ -369,14 +360,16 @@ VNCarousel.prototype.goToClickedPeeking = function(e) {
 VNCarousel.prototype.updateAfterTransition = function() {
   var self = this;
 
-  if (self.defaults.infinite) {
+  self.transitioning = false;
+
+  if (self.infinite) {
     self.moveFromCloned();
   }
 
   self.updatePagination(self.currentPage);
 
   if (self.pageBeforeMoving !== self.currentPageFraction) {
-    self.defaults.afterChange();    
+    self.afterChange();    
   }
 };
 
@@ -390,48 +383,97 @@ VNCarousel.prototype.getPageOffset = function() {
   return pageOfset;
 };
 
+VNCarousel.prototype.getCurrentBreakpoint = function() {
+  var self = this;
+  var i;
+
+  // Sort breakpoints (mobile-first)
+  self.defaults.responsive.sort(function(a, b) {
+      return parseFloat(a.breakpoint) - parseFloat(b.breakpoint);
+  });
+
+  // Get current breakpoint
+  for (i = 0; i < self.defaults.responsive.length; i++) {
+    if (window.innerWidth > self.defaults.responsive[i].breakpoint) {
+      self.bp = i;
+    }
+  }
+};
+
+VNCarousel.prototype.listenToBreakpoints = function(property) {
+  var self         = this;
+  var defaultValue = self.defaults[property];
+  var breakpointValue;
+  var prevBreakpointsValue;
+  var i;
+
+  if (self.bp !== undefined) {
+    breakpointValue = self.defaults.responsive[self.bp].settings[property];
+  }
+
+  // Use value in the current breakpoint
+  if (breakpointValue !== undefined) {
+    return breakpointValue;
+  } else {
+    // Use values on previous breakpoint
+    for (i = self.bp; i >= 0; i--) {
+      prevBreakpointsValue = self.defaults.responsive[i].settings[property];
+
+      // If value is not undefined return and break
+      if (prevBreakpointsValue !== undefined) {
+        return prevBreakpointsValue;
+      }
+    }
+    // Use value outside of breakpoints
+    if (prevBreakpointsValue === undefined) {
+      return defaultValue;
+    }
+  }
+};
+
 VNCarousel.prototype.addTouchListeners = function(ev) {
   var self = this;
+  if (!self.transitioning) {
+    switch(ev.type) {
+      case 'panstart':
+        self.carouselWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
+      break;
 
-  switch(ev.type) {
-    case 'panstart':
-      self.carouselWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
-    break;
+      case 'panright':
+      case 'panleft': 
+        self.pctDragged = ev.deltaX/self.carouselWidthPx;
 
-    case 'panright':
-    case 'panleft': 
-      self.pctDragged = ev.deltaX/self.carouselWidthPx;
+        // Move with the finger
+        var dragOffset = -self.pctDragged * self.carouselWidth;
 
-      // Move with the finger
-      var dragOffset = -self.pctDragged * self.carouselWidth;
-
-      // Make drag feel "heavier" at the first and last pane
-      if (!self.defaults.infinite) {
-        if ((self.currentPage === 1 && ev.deltaX > 0) ||
-            (self.currentPage === self.totalPages && ev.deltaX < 0)) {
-          dragOffset *= 0.3;
+        // Make drag feel "heavier" at the first and last pane
+        if (!self.infinite) {
+          if ((self.currentPage === 1 && ev.deltaX > 0) ||
+              (self.currentPage === self.totalPages && ev.deltaX < 0)) {
+            dragOffset *= 0.3;
+          }
         }
-      }
 
-      var panValue = dragOffset + self.getPageOffset();
+        var panValue = dragOffset + self.getPageOffset();
 
-      self.setCarouselOffset(panValue, false);  
+        self.setCarouselOffset(panValue, false);  
 
-      // Disable browser scrolling
-      ev.preventDefault();
-    break;
+        // Disable browser scrolling
+        ev.preventDefault();
+      break;
 
-    case 'panend':
-      if (Math.abs(self.pctDragged) > 0.2) {
-        if (ev.deltaX > 0) {
-          self.goToPrevPage();
+      case 'panend':
+        if (Math.abs(self.pctDragged) > 0.2) {
+          if (ev.deltaX > 0) {
+            self.goToPrevPage();
+          } else {
+            self.goToNextPage();
+          }  
         } else {
-          self.goToNextPage();
-        }  
-      } else {
-        self.goToPage(self.currentPage);
-      }
-    break;
+          self.goToPage(self.currentPage);
+        }
+      break;
+    }
   }
 };
 
