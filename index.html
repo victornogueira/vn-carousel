@@ -37,6 +37,11 @@
 			.carousel-slide-selected .slide-wrapper {
 				background-color: #444;
 			}
+
+			.carousel-nav-disabled {
+				opacity: .2;
+				pointer-events: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -96,15 +101,12 @@
 
 			var c = new VNCarousel(myCarousel, {
 				slidesPerPage: 1,
-				peekingPercentage: 10,
+				infinite: false,
 				onInit: function() {
-					console.log('init')
 				},
 				beforeChange: function() {
-					console.log('before')
 				},
 				afterChange: function() {
-					console.log('after')
 				},
 				responsive: [{
 			      breakpoint: 450,
@@ -115,8 +117,7 @@
 			    {
 			      breakpoint: 600,
 			      settings: {
-			      	slidesPerPage: 3,
-			      	peekingPercentage: 5
+			      	slidesPerPage: 3
 			      }
 			    },
 			    {
