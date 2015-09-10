@@ -4,6 +4,11 @@ var VNCarousel = function(elem, settings) {
   var self = this;
   var property;
 
+  self.elem          = elem;
+  self.totalCloned   = 0;
+  self.transitionEnd = self.transitionEndEventName();
+  self.didResize     = false;
+
   self.defaults = {
     slidesWrapper: '.js-carousel-slides-wrapper',
     carouselPrev: '.js-carousel-prev',
@@ -25,51 +30,59 @@ var VNCarousel = function(elem, settings) {
     }
   }
 
-  self.getCurrentBreakpoint();
-
-  // Override properties with the ones inside breakpoints
-  for (property in self.defaults) {
-    if (self.defaults.hasOwnProperty(property)) {
-      self[property] = self.listenToBreakpoints(property);
-    }
-  }
-
-  self.elem                = elem;
-  self.slidesWrapper       = elem.querySelector(self.slidesWrapper);
-  self.carouselPrev        = elem.querySelector(self.carouselPrev);
-  self.carouselNext        = elem.querySelector(self.carouselNext);
-  self.paginationWrapper   = elem.querySelector(self.carouselPagination);
-  self.peekingPercentage   = self.peekingPercentage/100;
-  self.carouselSlide       = self.slidesWrapper.children;
-  self.totalChildren       = self.carouselSlide.length;
-  self.totalPagesFraction  = self.totalChildren/self.slidesPerPage;
-  self.totalPages          = Math.ceil(self.totalPagesFraction);
-  self.totalCloned         = 0;
-  self.totalSlides         = self.totalChildren - self.totalCloned;
-  self.transitionEnd       = self.transitionEndEventName();
-  self.slidesRemainder     = self.totalSlides % self.slidesPerPage;
+  // Sort breakpoints (mobile-first)
+  self.defaults.responsive.sort(function(a, b) {
+    return parseFloat(a.breakpoint) - parseFloat(b.breakpoint);
+  });
 
   // Run only on browsers that support the classlist API
   if ('classList' in document.createElement('_')) {
     document.addEventListener("DOMContentLoaded", function() {
-      self.init();
+      self.init(1);
+      
+      // Callback
+      self.onInit();
     });
   }
 };
 
-VNCarousel.prototype.init = function() {
+VNCarousel.prototype.init = function(slide) {
   var self = this;
+
+  if (slide === undefined) {
+    slide = 1;
+  }
+
+  self.getCurrentBreakpoint();
+
+  // Override properties with the ones inside breakpoints
+  for (var property in self.defaults) {
+    if (self.defaults.hasOwnProperty(property)) {
+      self[property] = self.updateBreakpointProperties(property);
+    }
+  }
+
+  self.slidesWrapper      = self.elem.querySelector(self.slidesWrapper);
+  self.carouselPrev       = self.elem.querySelector(self.carouselPrev);
+  self.carouselNext       = self.elem.querySelector(self.carouselNext);
+  self.paginationWrapper  = self.elem.querySelector(self.carouselPagination);
+  self.peekingPercentage  = self.peekingPercentage/100;
+  self.carouselSlide      = self.slidesWrapper.children;
+  self.totalChildren      = self.carouselSlide.length;
+  self.totalPagesFraction = self.totalChildren/self.slidesPerPage;
+  self.totalPages         = Math.ceil(self.totalPagesFraction);
+  self.totalSlides        = self.totalChildren - self.totalCloned;
+  self.slidesRemainder    = self.totalSlides % self.slidesPerPage;
 
   self.addStylingClasses();
 
   if (this.totalChildren > self.slidesPerPage) {         
     self.buildCarousel();
-    self.goToPage(1, false);
+    self.goToSlide(slide, false);
+    self.updatePagination(self.currentPage);
   } else {
     self.buildNoCarousel();
   }
-
-  self.onInit();
 };
 
 VNCarousel.prototype.buildCarousel = function() {
@@ -81,8 +94,8 @@ VNCarousel.prototype.buildCarousel = function() {
   
   var carouselWidth = 100/self.totalChildren;
 
-  self.peekingWidth = carouselWidth * self.peekingPercentage;
-  self.carouselWidth   = (carouselWidth - self.peekingWidth * 2)/self.slidesPerPage;
+  self.peekingWidth  = carouselWidth * self.peekingPercentage;
+  self.carouselWidth = (carouselWidth - self.peekingWidth * 2)/self.slidesPerPage;
 
   self.slidesWrapper.style.width = self.totalChildren * 100 + '%';
 
@@ -91,7 +104,7 @@ VNCarousel.prototype.buildCarousel = function() {
   }
 
   self.buildPagination();
-  self.addUIListeners(self.afterChange);
+  self.addUIListeners();
 };
 
 VNCarousel.prototype.buildNoCarousel = function() {
@@ -108,12 +121,12 @@ VNCarousel.prototype.buildNoCarousel = function() {
 VNCarousel.prototype.addStylingClasses = function() {
   var self = this;
 
- self.elem.classList.add('carousel');
- self.slidesWrapper.classList.add('carousel-slides-wrapper');
+  self.elem.classList.add('carousel');
+  self.slidesWrapper.classList.add('carousel-slides-wrapper');
  
- for (var i = 0; i < self.totalChildren; i++) {
-   self.carouselSlide[i].classList.add('carousel-slide');
- }
+  for (var i = 0; i < self.totalChildren; i++) {
+    self.carouselSlide[i].classList.add('carousel-slide');
+  }
 };
 
 VNCarousel.prototype.cloneSlides = function() {
@@ -126,6 +139,7 @@ VNCarousel.prototype.cloneSlides = function() {
     var clonedFirstSlides = firstSlides.cloneNode(true);
 
     self.slidesWrapper.appendChild(clonedFirstSlides);
+    clonedFirstSlides.classList.add('cloned-slide');
   }
 
   // Clone last slides and append to the beginning of list
@@ -134,12 +148,15 @@ VNCarousel.prototype.cloneSlides = function() {
     var clonedLastSlides = lastSlides.cloneNode(true);
 
     self.slidesWrapper.insertBefore(clonedLastSlides, self.carouselSlide[i]);
+    clonedLastSlides.classList.add('cloned-slide');
   }
 
   // Update slide count after cloning
   self.carouselSlide = self.slidesWrapper.children;
   self.totalCloned   = self.carouselSlide.length - self.totalChildren;
   self.totalChildren = self.carouselSlide.length;
+
+  self.clonedSlides = document.querySelectorAll('.cloned-slide');
 };
 
 VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
@@ -188,22 +205,22 @@ VNCarousel.prototype.goToPage = function(page, transition) {
       self.currentPage         = Math.ceil(page);
       self.firstOfCurrentPage  = Math.round((page - 1) * self.slidesPerPage + 1);
       self.currentSlides       = self.getCurrentSlides();
-
-      self.styleCurrentSlides();
     }
+
+    self.styleCurrentSlides();
 
     // Move carousel
     self.setCarouselOffset(self.getPageOffset(), transition);
   }
 };
 
-VNCarousel.prototype.goToSlide = function(slide) {
+VNCarousel.prototype.goToSlide = function(slide, transition) {
   var self = this;
   var page = Math.ceil(slide/self.slidesPerPage);
 
   page = Math.max(1, Math.min(page,self.totalPages));
 
-  self.goToPage(page);
+  self.goToPage(page, transition);
 };
 
 VNCarousel.prototype.goToNextPage = function() {
@@ -361,6 +378,7 @@ VNCarousel.prototype.updateAfterTransition = function() {
   var self = this;
 
   self.transitioning = false;
+  self.slidesWrapper.classList.remove('carousel-transition');
 
   if (self.infinite) {
     self.moveFromCloned();
@@ -368,6 +386,7 @@ VNCarousel.prototype.updateAfterTransition = function() {
 
   self.updatePagination(self.currentPage);
 
+  // Callback only if moved to a different page
   if (self.pageBeforeMoving !== self.currentPageFraction) {
     self.afterChange();    
   }
@@ -387,12 +406,6 @@ VNCarousel.prototype.getCurrentBreakpoint = function() {
   var self = this;
   var i;
 
-  // Sort breakpoints (mobile-first)
-  self.defaults.responsive.sort(function(a, b) {
-      return parseFloat(a.breakpoint) - parseFloat(b.breakpoint);
-  });
-
-  // Get current breakpoint
   for (i = 0; i < self.defaults.responsive.length; i++) {
     if (window.innerWidth > self.defaults.responsive[i].breakpoint) {
       self.bp = i;
@@ -400,7 +413,7 @@ VNCarousel.prototype.getCurrentBreakpoint = function() {
   }
 };
 
-VNCarousel.prototype.listenToBreakpoints = function(property) {
+VNCarousel.prototype.updateBreakpointProperties = function(property) {
   var self         = this;
   var defaultValue = self.defaults[property];
   var breakpointValue;
@@ -428,6 +441,32 @@ VNCarousel.prototype.listenToBreakpoints = function(property) {
     if (prevBreakpointsValue === undefined) {
       return defaultValue;
     }
+  }
+};
+
+VNCarousel.prototype.listenToBreakpoints = function() {
+  var self     = this;
+  var winWidth = window.innerWidth;
+  var prevBP;
+  var nextBP;
+
+  if (self.bp !== undefined) {
+    if (self.bp !== self.defaults.responsive.length - 1) {
+      nextBP = self.defaults.responsive[self.bp + 1].breakpoint;
+    }
+
+    if (self.bp !== 0) {
+      prevBP = self.defaults.responsive[self.bp - 1].breakpoint;
+    } else {
+      prevBP = self.defaults.responsive[0].breakpoint;
+    }
+  } else {
+    nextBP = self.defaults.responsive[0].breakpoint;
+  }
+
+  if (winWidth > nextBP || winWidth < prevBP) {
+    self.destroy();
+    self.init(self.firstOfCurrentPage);
   }
 };
 
@@ -492,15 +531,67 @@ VNCarousel.prototype.keyboardEvents = function(e) {
   }
 };
 
-VNCarousel.prototype.addUIListeners = function() {
+VNCarousel.prototype.destroy = function() {
   var self = this;
- 
+  var i;
+
+  // Delete clones
+  if (self.infinite) {
+    for (i = 0; i < self.clonedSlides.length; i++) {
+        self.clonedSlides[i].remove(); 
+    }
+  }
+
+  // Delete pagination
+  if (self.paginationWrapper) {
+    for (i = 0; self.paginationItem.length; i++) {
+      self.paginationItem[0].remove();
+    }
+  }
+
+  // Remove inline styles and classes
+  self.elem.classList.remove('carousel');
+  self.slidesWrapper.removeAttribute('style');
+  self.slidesWrapper.classList.remove('carousel-slides-wrapper');
+
+  for (i = 0; i < self.carouselSlide.length; i++) {
+    self.carouselSlide[i].classList.remove('carousel-slide');
+    self.carouselSlide[i].classList.remove('carousel-slide-selected');
+    self.carouselSlide[i].classList.remove('carousel-slide-prev');
+    self.carouselSlide[i].classList.remove('carousel-slide-next');
+    self.carouselSlide[i].removeAttribute('style');
+  }
+
+  // Reset vars
+  self.totalChildren = self.carouselSlide.length;
+  self.totalCloned   = 0;
+  self.carouselWidth = undefined;
+  self.bp            = undefined;
+
+  // Unbind UI listeners
+  self.createHammer.destroy();
+
   if (self.carouselNext) {
-    self.carouselNext.addEventListener('click', self.goToNextPage.bind(self));
+    self.carouselNext.removeEventListener('click', self.carouselNextAction);
   }
 
   if (self.carouselPrev) {
-    self.carouselPrev.addEventListener('click', self.goToPrevPage.bind(self));  
+    self.carouselPrev.removeEventListener('click', self.carouselPrevAction);
+  }
+};
+
+VNCarousel.prototype.addUIListeners = function() {
+  var self = this;
+
+  self.carouselNextAction = self.goToNextPage.bind(self);
+  self.carouselPrevAction = self.goToPrevPage.bind(self);
+ 
+  if (self.carouselNext) {
+    self.carouselNext.addEventListener('click', self.carouselNextAction);
+  }
+
+  if (self.carouselPrev) {
+    self.carouselPrev.addEventListener('click', self.carouselPrevAction);  
   }
 
   if (self.paginationWrapper) {
@@ -523,6 +614,18 @@ VNCarousel.prototype.addUIListeners = function() {
   });
 
   document.addEventListener('keyup', self.keyboardEvents.bind(self));
+  
+  window.addEventListener('resize', function(){
+    self.didResize = true;
+  });
+
+  setInterval(function() {
+    if (self.didResize) {
+      self.didResize = false;
+      self.listenToBreakpoints();
+    }
+  }, 100);
+  
 };
 
 /* Utils
