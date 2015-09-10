@@ -39,7 +39,7 @@ var VNCarousel = function(elem, settings) {
   if ('classList' in document.createElement('_')) {
     document.addEventListener("DOMContentLoaded", function() {
       self.init(1);
-      
+
       // Callback
       self.onInit();
     });
@@ -83,6 +83,7 @@ VNCarousel.prototype.init = function(slide) {
   } else {
     self.buildNoCarousel();
   }
+  self.addUIListeners();
 };
 
 VNCarousel.prototype.buildCarousel = function() {
@@ -104,7 +105,6 @@ VNCarousel.prototype.buildCarousel = function() {
   }
 
   self.buildPagination();
-  self.addUIListeners();
 };
 
 VNCarousel.prototype.buildNoCarousel = function() {
@@ -536,14 +536,14 @@ VNCarousel.prototype.destroy = function() {
   var i;
 
   // Delete clones
-  if (self.infinite) {
+  if (self.clonedSlides) {
     for (i = 0; i < self.clonedSlides.length; i++) {
         self.clonedSlides[i].remove(); 
     }
   }
 
   // Delete pagination
-  if (self.paginationWrapper) {
+  if (self.paginationItem) {
     for (i = 0; self.paginationItem.length; i++) {
       self.paginationItem[0].remove();
     }
@@ -568,8 +568,10 @@ VNCarousel.prototype.destroy = function() {
   self.carouselWidth = undefined;
   self.bp            = undefined;
 
-  // Unbind UI listeners
-  self.createHammer.destroy();
+  // Unbind touch listeners
+  if (self.createHammer) {
+    self.createHammer.destroy();  
+  }
 
   if (self.carouselNext) {
     self.carouselNext.removeEventListener('click', self.carouselNextAction);
@@ -583,37 +585,39 @@ VNCarousel.prototype.destroy = function() {
 VNCarousel.prototype.addUIListeners = function() {
   var self = this;
 
-  self.carouselNextAction = self.goToNextPage.bind(self);
-  self.carouselPrevAction = self.goToPrevPage.bind(self);
- 
-  if (self.carouselNext) {
-    self.carouselNext.addEventListener('click', self.carouselNextAction);
-  }
-
-  if (self.carouselPrev) {
-    self.carouselPrev.addEventListener('click', self.carouselPrevAction);  
-  }
-
-  if (self.paginationWrapper) {
-    self.paginationWrapper.addEventListener('click', self.getPaginationClick.bind(self));
-  }
-
-  self.slidesWrapper.addEventListener('click', self.goToClickedPeeking.bind(self));
-  self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
-
-  // Add touch events with Hammer.js
-  self.createHammer = new Hammer(self.slidesWrapper);
-  self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
-
-  document.addEventListener('click', function(e) {
-    self.isFocused = false;
-
-    if (self.elem.contains(e.target)) {
-      self.isFocused = true;
+  if (self.totalSlides > self.slidesPerPage) {
+    self.carouselNextAction = self.goToNextPage.bind(self);
+    self.carouselPrevAction = self.goToPrevPage.bind(self);
+    
+    if (self.carouselNext) {
+      self.carouselNext.addEventListener('click', self.carouselNextAction);
     }
-  });
 
-  document.addEventListener('keyup', self.keyboardEvents.bind(self));
+    if (self.carouselPrev) {
+      self.carouselPrev.addEventListener('click', self.carouselPrevAction);  
+    }
+
+    if (self.paginationWrapper) {
+      self.paginationWrapper.addEventListener('click', self.getPaginationClick.bind(self));
+    }
+
+    self.slidesWrapper.addEventListener('click', self.goToClickedPeeking.bind(self));
+    self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
+
+    // Add touch events with Hammer.js
+    self.createHammer = new Hammer(self.slidesWrapper);
+    self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
+
+    document.addEventListener('click', function(e) {
+      self.isFocused = false;
+
+      if (self.elem.contains(e.target)) {
+        self.isFocused = true;
+      }
+    });
+
+    document.addEventListener('keyup', self.keyboardEvents.bind(self));
+  }
   
   window.addEventListener('resize', function(){
     self.didResize = true;
@@ -625,7 +629,6 @@ VNCarousel.prototype.addUIListeners = function() {
       self.listenToBreakpoints();
     }
   }, 100);
-  
 };
 
 /* Utils
