@@ -385,6 +385,8 @@ VNCarousel.prototype.goToClickedPagination = function(elem) {
 VNCarousel.prototype.goToClickedInactive = function(e) {
   var self = this;
   var clickedItem = e.target;
+  var slidesNodeList;
+  var clickedIndex;
 
   while (clickedItem !== self.slidesWrapper) {
     clickedItem = clickedItem.parentNode;
@@ -393,8 +395,13 @@ VNCarousel.prototype.goToClickedInactive = function(e) {
   }
 
   if (!clickedItem.classList.contains('carousel-slide-selected')) {
-    var slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
-    var clickedIndex   = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
+    slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
+    
+    if (self.infinite) {
+      clickedIndex   = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
+    } else {
+      clickedIndex   = slidesNodeList.indexOf(clickedItem) + 1;
+    }
 
     if (clickedIndex > self.firstOfCurrentPage) {
       self.goToNextPage();
