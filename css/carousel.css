@@ -12,6 +12,10 @@
   float: left;
 }
 
+[dir="rtl"] .carousel-slide {
+  float: right;
+}
+
 .carousel-pagination-item {
   position: relative;
   display: inline-block;

@@ -84,11 +84,6 @@
             7
           </div>
         </div>
-        <div>
-          <div class="slide-wrapper">
-            8
-          </div>
-        </div>
       </div>
       <div class="js-carousel-pagination"></div>
       <button class="carousel-arrow js-carousel-prev">Previous</button>
@@ -98,14 +93,12 @@
     <script src="js/hammer.min.js"></script>
     <script src="js/carousel.js"></script>
     <script>
-
       var myCarousel = document.querySelector('.js-carousel');
 
       var c = new VNCarousel(myCarousel, {
         slidesPerPage: 1,
         centerCurrentSlides: true,
         peekingPercentage: 5,
-        slidesToMove: 1,
         responsive: 
           [{
             breakpoint: 450,

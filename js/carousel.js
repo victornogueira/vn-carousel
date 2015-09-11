@@ -20,9 +20,10 @@ var VNCarousel = function(elem, settings) {
     peekingPercentage   : 0,
     edgeWeight          : 0.2,
     centerCurrentSlides : false,
-    swipeThreshold      : .2,
+    swipeThreshold      : 0.2,
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
+    rtl                 : false,
     onInit              : function() {},
     afterChange         : function() {},
     beforeChange        : function() {},
@@ -43,12 +44,10 @@ var VNCarousel = function(elem, settings) {
 
   // Run only on browsers that support the classlist API
   if ('classList' in document.createElement('_')) {
-    document.addEventListener("DOMContentLoaded", function() {
-      self.init();
+    self.init();
 
-      // Callback
-      self.onInit();
-    });
+    // Callback
+    self.onInit();
   }
 };
 
@@ -182,8 +181,13 @@ VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
       self.slidesWrapper.classList.add('carousel-transition');
     }
 
-    self.slidesWrapper.style.webkitTransform = 'translate3d(' + (distance * -1) + '%,0,0)';
-    self.slidesWrapper.style.transform = 'translate3d(' + (distance * -1) + '%,0,0)'; 
+    if (!self.rtl) {
+      self.slidesWrapper.style.webkitTransform = 'translate3d(' + (distance * -1) + '%,0,0)';
+      self.slidesWrapper.style.transform = 'translate3d(' + (distance * -1) + '%,0,0)';   
+    } else {
+      self.slidesWrapper.style.webkitTransform = 'translate3d(' + (distance * 1) + '%,0,0)';
+      self.slidesWrapper.style.transform = 'translate3d(' + (distance * 1) + '%,0,0)';   
+    }
 };
 
 VNCarousel.prototype.goToPage = function(page, transition) {
@@ -515,17 +519,23 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
     switch(ev.type) {
       case 'panstart':
         self.slideWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
-        
+
         self.slidesWrapper.style.cursor = '-webkit-grabbing';
         self.slidesWrapper.style.cursor = 'grabbing';
       break;
 
       case 'panright':
       case 'panleft': 
+        var dragOffset;
+
         self.pctDragged = ev.deltaX/self.slideWidthPx/self.slidesToMove;
 
         // Move with the finger
-        var dragOffset = -self.pctDragged * self.slideWidth * self.slidesToMove;
+        if (!self.rtl) {
+          dragOffset = -self.pctDragged * self.slideWidth * self.slidesToMove;  
+        } else {
+          dragOffset = self.pctDragged * self.slideWidth * self.slidesToMove;
+        }
 
         // Make drag feel "heavier" at the first and last pane
         if (!self.infinite) {
@@ -546,9 +556,17 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
       case 'panend':
         if (Math.abs(self.pctDragged) > self.swipeThreshold) {
           if (ev.deltaX > 0) {
-            self.goToPrevPage();
+            if (!self.rtl) {
+              self.goToPrevPage();
+            } else {
+              self.goToNextPage();  
+            }
           } else {
-            self.goToNextPage();
+            if (!self.rtl) {
+              self.goToNextPage();  
+            } else {
+              self.goToPrevPage();
+            }
           }  
         } else {
           self.goToPage(self.currentPage);
