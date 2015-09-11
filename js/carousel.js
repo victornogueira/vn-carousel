@@ -21,6 +21,7 @@ var VNCarousel = function(elem, settings) {
     edgeWeight          : 0.2,
     centerCurrentSlides : false,
     swipeThreshold      : 0.2,
+    clickOnInactive     : true,
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
     rtl                 : false,
@@ -308,28 +309,12 @@ VNCarousel.prototype.styleCurrentSlides = function() {
 
   for (i = 0; i < self.totalChildren; i++) {
     self.carouselSlide[i].classList.remove('carousel-slide-selected');
-    self.carouselSlide[i].classList.remove('carousel-slide-prev');
-    self.carouselSlide[i].classList.remove('carousel-slide-next');
   }
 
   // Add class to current
   for (i = 0; i < self.slidesToMove; i++) {
     var currentSlides = self.firstOfCurrentPage + self.totalCloned/2 + i - 1;
     self.carouselSlide[currentSlides].classList.add('carousel-slide-selected');
-  }
-
-  // Add class to prev/next
-  var peekingLeftIndex  = self.firstOfCurrentPage + self.totalCloned/2 - 2;
-  var peekingRightIndex = self.firstOfCurrentPage + self.slidesToMove + self.totalCloned/2 - 1;
-  var peekingLeft       = self.carouselSlide[peekingLeftIndex];
-  var peekingRight      = self.carouselSlide[peekingRightIndex];
-
-  if (peekingLeft) {
-    peekingLeft.classList.add('carousel-slide-prev');  
-  }
-
-  if (peekingRight) {
-    peekingRight.classList.add('carousel-slide-next');  
   }
 };
 
@@ -388,24 +373,33 @@ VNCarousel.prototype.getPaginationClick = function(e) {
 VNCarousel.prototype.goToClickedPagination = function(elem) {
   var self = this;
 
-  var paginationNodeList  = Array.prototype.slice.call(elem.parentNode.children);
-  var clickedPaginationItem = paginationNodeList.indexOf(elem) + 1;
+  if (!self.transitioning) {
+    var paginationNodeList  = Array.prototype.slice.call(elem.parentNode.children);
+    var clickedPaginationItem = paginationNodeList.indexOf(elem) + 1;
 
-  self.goToPage(clickedPaginationItem);
+    self.goToPage(clickedPaginationItem);  
+  }
 };
 
-VNCarousel.prototype.goToClickedPeeking = function(e) {
+VNCarousel.prototype.goToClickedInactive = function(e) {
   var self = this;
   var clickedItem = e.target;
 
-  while (clickedItem != self.slidesWrapper) {
-    if (clickedItem.classList.contains('carousel-slide-prev')) {
-      self.goToPrevPage();
-    } else if (clickedItem.classList.contains('carousel-slide-next')) {
-      self.goToNextPage();
-    }
-
+  while (clickedItem !== self.slidesWrapper) {
     clickedItem = clickedItem.parentNode;
+
+    break;
+  }
+
+  if (!clickedItem.classList.contains('carousel-slide-selected')) {
+    var slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
+    var clickedIndex   = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
+
+    if (clickedIndex > self.firstOfCurrentPage) {
+      self.goToNextPage();
+    } else {
+      self.goToPrevPage();
+    }
   }
 };
 
@@ -520,8 +514,8 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
       case 'panstart':
         self.slideWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
 
-        self.slidesWrapper.style.cursor = '-webkit-grabbing';
-        self.slidesWrapper.style.cursor = 'grabbing';
+        self.elem.style.cursor = '-webkit-grabbing';
+        self.elem.style.cursor = 'grabbing';
       break;
 
       case 'panright':
@@ -571,7 +565,7 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
         } else {
           self.goToPage(self.currentPage);
         }
-        self.slidesWrapper.style.cursor = '';
+        self.elem.style.cursor = '';
       break;
     }
   }
@@ -618,8 +612,6 @@ VNCarousel.prototype.destroy = function() {
   for (i = 0; i < self.carouselSlide.length; i++) {
     self.carouselSlide[i].classList.remove('carousel-slide');
     self.carouselSlide[i].classList.remove('carousel-slide-selected');
-    self.carouselSlide[i].classList.remove('carousel-slide-prev');
-    self.carouselSlide[i].classList.remove('carousel-slide-next');
     self.carouselSlide[i].removeAttribute('style');
   }
 
@@ -662,7 +654,10 @@ VNCarousel.prototype.addUIListeners = function() {
       self.paginationWrapper.addEventListener('click', self.getPaginationClick.bind(self));
     }
 
-    self.slidesWrapper.addEventListener('click', self.goToClickedPeeking.bind(self));
+    if (self.clickOnInactive) {
+      self.slidesWrapper.addEventListener('click', self.goToClickedInactive.bind(self));  
+    }
+
     self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
 
     // Identify which carousel should respond to keyboard events
