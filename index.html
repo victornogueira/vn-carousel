@@ -1,138 +1,137 @@
 <!DOCTYPE html>
 <html lang="en-US">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="author" content="Victor Nogueira" />
-		<meta name="description" content="Carousel." />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-		<link rel="stylesheet" href="css/carousel.css">
-		<meta name="msapplication-tap-highlight" content="no"/>
-		<title>Carousel</title>
-		<style>
-			body {
-				background-color: #eee;
-				margin: 0;
-			}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Victor Nogueira" />
+    <meta name="description" content="Carousel." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="stylesheet" href="css/carousel.css">
+    <meta name="msapplication-tap-highlight" content="no"/>
+    <title>Carousel</title>
+    <style>
+      body {
+        background-color: #eee;
+        margin: 0;
+      }
 
-			.carousel {
-				position: relative;
-				margin: 2em 0;
-			}
+      .carousel {
+        position: relative;
+        margin: 2em 0;
+        cursor: -webkit-grab;
+        cursor: grab;
+      }
 
-			.carousel-slide {
-				box-sizing: border-box;
-				padding: .5em;
-			}
+      .carousel-slide {
+        box-sizing: border-box;
+        padding: .5em;
+      }
 
-			.slide-wrapper {
-				background-color: #999;
-				color: #fff;
-				font-family: 'Helvetica Neue';
-				font-size: 10vw;
-				font-weight: 100;
-				text-align: center;
-			}
+      .slide-wrapper {
+        background-color: #999;
+        color: #fff;
+        font-family: 'Helvetica Neue';
+        font-size: 10vw;
+        font-weight: 100;
+        text-align: center;
+      }
 
-			.carousel-slide-selected .slide-wrapper {
-				background-color: #444;
-			}
+      .carousel-slide-selected .slide-wrapper {
+        background-color: #444;
+      }
 
-			.carousel-nav-disabled {
-				opacity: .2;
-				pointer-events: none;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="js-carousel">
-			<div class="js-carousel-slides-wrapper">
-				<div>
-					<div class="slide-wrapper">
-						1
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						2
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						3
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						4
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						5
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						6
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						7
-					</div>
-				</div>
-				<div>
-					<div class="slide-wrapper">
-						8
-					</div>
-				</div>
-			</div>
-			<div class="js-carousel-pagination"></div>
-			<button class="carousel-arrow js-carousel-prev">Previous</button>
-			<button class="carousel-arrow js-carousel-next">Next</button>
-		</div>
-		<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
-		<script src="js/hammer.min.js"></script>
-		<script src="js/carousel.js"></script>
-		<script>
+      .carousel-nav-disabled {
+        opacity: .2;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="js-carousel">
+      <div class="js-carousel-slides-wrapper">
+        <div>
+          <div class="slide-wrapper">
+            1
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            2
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            3
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            4
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            5
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            6
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            7
+          </div>
+        </div>
+        <div>
+          <div class="slide-wrapper">
+            8
+          </div>
+        </div>
+      </div>
+      <div class="js-carousel-pagination"></div>
+      <button class="carousel-arrow js-carousel-prev">Previous</button>
+      <button class="carousel-arrow js-carousel-next">Next</button>
+    </div>
+    <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+    <script src="js/hammer.min.js"></script>
+    <script src="js/carousel.js"></script>
+    <script>
 
-			var myCarousel = document.querySelector('.js-carousel');
+      var myCarousel = document.querySelector('.js-carousel');
 
-			var c = new VNCarousel(myCarousel, {
-				slidesPerPage: 1,
-				infinite: false,
-				onInit: function() {
-				},
-				beforeChange: function() {
-				},
-				afterChange: function() {
-				},
-				responsive: [{
-			      breakpoint: 450,
-			      settings: {
-			      	slidesPerPage: 2
-			      }
-			    },
-			    {
-			      breakpoint: 600,
-			      settings: {
-			      	slidesPerPage: 3
-			      }
-			    },
-			    {
-		    	  breakpoint: 1000,
-		    	  settings: {
-		    	  	slidesPerPage: 4
-		    	  }
-			    },
-			    {
-		    	  breakpoint: 1200,
-		    	  settings: {
-		    	  	slidesPerPage: 5
-		    	  }
-			    }]
-			});
-		</script>
-	</body>
+      var c = new VNCarousel(myCarousel, {
+        slidesPerPage: 1,
+        centerCurrentSlides: true,
+        peekingPercentage: 5,
+        slidesToMove: 1,
+        responsive: 
+          [{
+            breakpoint: 450,
+            settings: {
+              slidesPerPage: 2
+            }
+          },
+          {
+            breakpoint: 600,
+            settings: {
+              slidesPerPage: 3
+            }
+          },
+          {
+            breakpoint: 1000,
+            settings: {
+              slidesPerPage: 4
+            }
+          },
+          {
+            breakpoint: 1200,
+            settings: {
+              slidesPerPage: 5
+            }
+          }]
+      });
+    </script>
+  </body>
 </html>

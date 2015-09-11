@@ -2,7 +2,6 @@ var VNCarousel = function(elem, settings) {
   'use strict';
 
   var self = this;
-  var property;
 
   self.elem          = elem;
   self.totalCloned   = 0;
@@ -10,27 +9,28 @@ var VNCarousel = function(elem, settings) {
   self.didResize     = false;
 
   self.defaults = {
-    slidesWrapper: '.js-carousel-slides-wrapper',
-    carouselPrev: '.js-carousel-prev',
-    carouselNext: '.js-carousel-next',
-    carouselPagination: '.js-carousel-pagination',
-    infinite: true,
-    slidesPerPage: 5,
-    slidesToMove: null,
-    initialSlide: 1,
-    peekingPercentage: 0,
-    edgeWeight: 0.2,
-    centerCurrentSlides: false,
-    paginationMarkup: '<button class="carousel-pagination-item"></button>',
-    responsive: [],
-    onInit: function() {},
-    afterChange: function() {},
-    beforeChange: function() {},
-    hitEdge: function() {}
+    slidesWrapper       : '.js-carousel-slides-wrapper',
+    carouselPrev        : '.js-carousel-prev',
+    carouselNext        : '.js-carousel-next',
+    carouselPagination  : '.js-carousel-pagination',
+    infinite            : true,
+    slidesPerPage       : 5,
+    slidesToMove        : null,
+    initialSlide        : 1,
+    peekingPercentage   : 0,
+    edgeWeight          : 0.2,
+    centerCurrentSlides : false,
+    swipeThreshold      : .2,
+    paginationMarkup    : '<button class="carousel-pagination-item"></button>',
+    responsive          : [],
+    onInit              : function() {},
+    afterChange         : function() {},
+    beforeChange        : function() {},
+    hitEdge             : function() {}
   };
 
   // Override default settings
-  for (property in settings) {
+  for (var property in settings) {
     if (settings.hasOwnProperty(property)) {
       self.defaults[property] = settings[property];
     }
@@ -64,6 +64,7 @@ VNCarousel.prototype.init = function(slide) {
     }
   }
 
+  // If no slide is specified, start at default slide
   if (slide === undefined) {
     slide = self.initialSlide;
   }
@@ -71,8 +72,8 @@ VNCarousel.prototype.init = function(slide) {
   // Move the number of slides per page, by default
   if (self.slidesToMove === null) {
     self.slidesToMove = self.slidesPerPage;  
-  } else {
   // Don't move more than the slides per page
+  } else {
     self.slidesToMove = Math.min(self.slidesToMove, self.slidesPerPage);
   }
   
@@ -90,7 +91,7 @@ VNCarousel.prototype.init = function(slide) {
 
   self.addStylingClasses();
 
-  if (this.totalChildren > self.slidesToMove) {         
+  if (this.totalChildren > self.slidesToMove) {
     self.buildCarousel();
     self.goToSlide(slide, false);
     self.updatePagination(self.currentPage);
@@ -107,16 +108,15 @@ VNCarousel.prototype.buildCarousel = function() {
   if (self.infinite) {
     self.cloneSlides();
   }
-  
-  var carouselWidth = 100/self.totalChildren;
 
-  self.peekingWidth  = carouselWidth * self.peekingPercentage;
-  self.carouselWidth = (carouselWidth - self.peekingWidth * 2)/self.slidesPerPage;
+  self.pageWidth    = 100/self.totalChildren;
+  self.peekingWidth = self.pageWidth * self.peekingPercentage;
+  self.slideWidth   = (self.pageWidth - self.peekingWidth * 2)/self.slidesPerPage;
 
   self.slidesWrapper.style.width = self.totalChildren * 100 + '%';
 
   for (var i = 0; i < self.carouselSlide.length; i++) {
-    self.carouselSlide[i].style.width = self.carouselWidth + '%'; 
+    self.carouselSlide[i].style.width = self.slideWidth + '%'; 
   }
 
   self.buildPagination();
@@ -170,8 +170,7 @@ VNCarousel.prototype.cloneSlides = function() {
   self.carouselSlide = self.slidesWrapper.children;
   self.totalCloned   = self.carouselSlide.length - self.totalChildren;
   self.totalChildren = self.carouselSlide.length;
-
-  self.clonedSlides = document.querySelectorAll('.cloned-slide');
+  self.clonedSlides  = document.querySelectorAll('.cloned-slide');
 };
 
 VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
@@ -317,7 +316,7 @@ VNCarousel.prototype.styleCurrentSlides = function() {
 
   // Add class to prev/next
   var peekingLeftIndex  = self.firstOfCurrentPage + self.totalCloned/2 - 2;
-  var peekingRightIndex = self.firstOfCurrentPage + self.slidesToMove + self.totalCloned/2  - 1;
+  var peekingRightIndex = self.firstOfCurrentPage + self.slidesToMove + self.totalCloned/2 - 1;
   var peekingLeft       = self.carouselSlide[peekingLeftIndex];
   var peekingRight      = self.carouselSlide[peekingRightIndex];
 
@@ -338,19 +337,20 @@ VNCarousel.prototype.buildPagination = function() {
 
     // Create pagination element (dots)
     self.paginationWrapper.innerHTML = self.paginationMarkup;
-    self.paginationItem = self.paginationWrapper.children;
+    self.paginationItem              = self.paginationWrapper.children;
 
-    self.paginationItem[0].innerHTML = '1';
+    var paginationFirst       = self.paginationItem[0];
+
+    // Print pagination indexes
+    paginationFirst.innerHTML = '1';
 
     for (var i = 0; i < self.totalPages - 1; i++) {
       var clonedPagination = self.paginationItem[0].cloneNode(true);
-      self.paginationItem[0].parentNode.appendChild(clonedPagination);
 
-      // Print pagination index
+      self.paginationItem[0].parentNode.appendChild(clonedPagination);
       self.paginationItem[i + 1].innerHTML = i + 2;
     }
-
-    var paginationFirst = self.paginationItem[0];
+    
     paginationFirst.classList.add('carousel-pagination-selected');
   }
 };
@@ -425,18 +425,17 @@ VNCarousel.prototype.updateAfterTransition = function() {
 
 VNCarousel.prototype.getPageOffset = function() {
   var self               = this;
-  var clonedWidth        = self.carouselWidth * self.totalCloned/2;
-  var peekingWidth       = self.peekingWidth/self.slidesToMove;
-  var carouselOffset     = (self.carouselWidth * (self.currentPageFraction - 1)) - peekingWidth;
-  var pageWidth          = 100/self.totalChildren;
-  var currentSlidesWidth = self.carouselWidth * self.slidesToMove;
-  var centerOffset       = pageWidth/2 - self.peekingWidth - currentSlidesWidth/2;
+  var clonedOffset       = self.slideWidth * self.totalCloned/2;
+  var peekingOffset      = self.peekingWidth/self.slidesToMove;
+  var carouselOffset     = (self.slideWidth * (self.currentPageFraction - 1)) - peekingOffset;
+  var currentSlidesWidth = self.slideWidth * self.slidesToMove;
+  var centerOffset       = self.pageWidth/2 - self.peekingWidth - currentSlidesWidth/2;
   var pageOffset;
 
   if (self.centerCurrentSlides) {
-    pageOffset = carouselOffset * self.slidesToMove + clonedWidth - centerOffset;
+    pageOffset = carouselOffset * self.slidesToMove + clonedOffset - centerOffset;
   } else {
-    pageOffset = carouselOffset * self.slidesToMove + clonedWidth;
+    pageOffset = carouselOffset * self.slidesToMove + clonedOffset;
   }
 
   return pageOffset;
@@ -515,15 +514,18 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
   if (!self.transitioning) {
     switch(ev.type) {
       case 'panstart':
-        self.carouselWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
+        self.slideWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
+        
+        self.slidesWrapper.style.cursor = '-webkit-grabbing';
+        self.slidesWrapper.style.cursor = 'grabbing';
       break;
 
       case 'panright':
       case 'panleft': 
-        self.pctDragged = ev.deltaX/self.carouselWidthPx;
+        self.pctDragged = ev.deltaX/self.slideWidthPx/self.slidesToMove;
 
         // Move with the finger
-        var dragOffset = -self.pctDragged * self.carouselWidth;
+        var dragOffset = -self.pctDragged * self.slideWidth * self.slidesToMove;
 
         // Make drag feel "heavier" at the first and last pane
         if (!self.infinite) {
@@ -542,7 +544,7 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
       break;
 
       case 'panend':
-        if (Math.abs(self.pctDragged) > 0.2) {
+        if (Math.abs(self.pctDragged) > self.swipeThreshold) {
           if (ev.deltaX > 0) {
             self.goToPrevPage();
           } else {
@@ -551,15 +553,16 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
         } else {
           self.goToPage(self.currentPage);
         }
+        self.slidesWrapper.style.cursor = '';
       break;
     }
   }
 };
 
 VNCarousel.prototype.keyboardEvents = function(e) {
-  var self = this;
-  var keyCode = e.keyCode;
-  var keyLeft = 37;
+  var self     = this;
+  var keyCode  = e.keyCode;
+  var keyLeft  = 37;
   var keyRight = 39;
 
   if (self.isFocused === true) {
@@ -605,7 +608,7 @@ VNCarousel.prototype.destroy = function() {
   // Reset vars
   self.totalChildren = self.carouselSlide.length;
   self.totalCloned   = 0;
-  self.carouselWidth = undefined;
+  self.slideWidth    = undefined;
   self.bp            = undefined;
 
   // Unbind touch listeners
@@ -644,10 +647,7 @@ VNCarousel.prototype.addUIListeners = function() {
     self.slidesWrapper.addEventListener('click', self.goToClickedPeeking.bind(self));
     self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
 
-    // Add touch events with Hammer.js
-    self.createHammer = new Hammer(self.slidesWrapper);
-    self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
-
+    // Identify which carousel should respond to keyboard events
     document.addEventListener('click', function(e) {
       self.isFocused = false;
 
@@ -657,6 +657,10 @@ VNCarousel.prototype.addUIListeners = function() {
     });
 
     document.addEventListener('keyup', self.keyboardEvents.bind(self));
+
+    // Add touch events with Hammer.js
+    self.createHammer = new Hammer(self.slidesWrapper);
+    self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
   }
   
   window.addEventListener('resize', function(){
@@ -672,7 +676,7 @@ VNCarousel.prototype.addUIListeners = function() {
 };
 
 /* Utils
------------------------------------------------------------------------------------------------- */
+--------------------------------------------------------------------------------- */
 
 VNCarousel.prototype.transitionEndEventName = function() {
   var el = document.createElement('div');
