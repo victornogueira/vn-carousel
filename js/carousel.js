@@ -373,13 +373,10 @@ VNCarousel.prototype.getPaginationClick = function(e) {
 
 VNCarousel.prototype.goToClickedPagination = function(elem) {
   var self = this;
+  var paginationNodeList  = Array.prototype.slice.call(elem.parentNode.children);
+  var clickedPaginationItem = paginationNodeList.indexOf(elem) + 1;
 
-  if (!self.transitioning) {
-    var paginationNodeList  = Array.prototype.slice.call(elem.parentNode.children);
-    var clickedPaginationItem = paginationNodeList.indexOf(elem) + 1;
-
-    self.goToPage(clickedPaginationItem);  
-  }
+  self.goToPage(clickedPaginationItem);
 };
 
 VNCarousel.prototype.goToClickedInactive = function(e) {
@@ -388,13 +385,13 @@ VNCarousel.prototype.goToClickedInactive = function(e) {
   var slidesNodeList;
   var clickedIndex;
 
-  while (clickedItem !== self.slidesWrapper) {
-    clickedItem = clickedItem.parentNode;
+  if (!self.transitioning) {
+    while (clickedItem !== self.slidesWrapper) {
+      clickedItem = clickedItem.parentNode;
 
-    break;
-  }
+      break;
+    }
 
-  if (!clickedItem.classList.contains('carousel-slide-selected')) {
     slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
     
     if (self.infinite) {
@@ -545,6 +542,7 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
         if (!self.infinite) {
           if ((self.currentPage === 1 && ev.deltaX > 0) ||
               (self.currentPage === self.totalPages && ev.deltaX < 0)) {
+
             dragOffset *= self.edgeWeight;
           }
         }
