@@ -22,6 +22,7 @@ var VNCarousel = function(elem, settings) {
     centerCurrentSlides : false,
     swipeThreshold      : 0.2,
     clickOnInactive     : true,
+    grabbingCursor      : true,
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
     rtl                 : false,
@@ -514,8 +515,10 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
       case 'panstart':
         self.slideWidthPx = self.carouselSlide[0].getBoundingClientRect().width;
 
-        self.elem.style.cursor = '-webkit-grabbing';
-        self.elem.style.cursor = 'grabbing';
+        if (self.grabbingCursor) {
+          self.elem.style.cursor = '-webkit-grabbing';
+          self.elem.style.cursor = 'grabbing';  
+        }
       break;
 
       case 'panright':
@@ -565,6 +568,7 @@ VNCarousel.prototype.addTouchListeners = function(ev) {
         } else {
           self.goToPage(self.currentPage);
         }
+
         self.elem.style.cursor = '';
       break;
     }
