@@ -385,26 +385,24 @@ VNCarousel.prototype.goToClickedInactive = function(e) {
   var slidesNodeList;
   var clickedIndex;
 
-  if (!self.transitioning) {
-    while (clickedItem !== self.slidesWrapper) {
-      clickedItem = clickedItem.parentNode;
+  while (clickedItem !== self.slidesWrapper) {
+    clickedItem = clickedItem.parentNode;
 
-      break;
-    }
+    break;
+  }
 
-    slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
-    
-    if (self.infinite) {
-      clickedIndex   = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
-    } else {
-      clickedIndex   = slidesNodeList.indexOf(clickedItem) + 1;
-    }
+  slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
 
-    if (clickedIndex > self.firstOfCurrentPage) {
-      self.goToNextPage();
-    } else {
-      self.goToPrevPage();
-    }
+  if (self.infinite) {
+    clickedIndex = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
+  } else {
+    clickedIndex = slidesNodeList.indexOf(clickedItem) + 1;
+  }
+
+  if (clickedIndex > self.firstOfCurrentPage) {
+    self.goToNextPage();
+  } else {
+    self.goToPrevPage();
   }
 };
 
