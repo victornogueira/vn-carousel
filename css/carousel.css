@@ -52,16 +52,6 @@
   background-color: rgba(0,0,0,.5);
 }
 
-.carousel-transition,
-.carousel-transition .carousel-slide {
-  transition: .5s;
-}
-
-.carousel-pagination {
-  margin-top: 1rem;
-  text-align: center;
-}
-
 .no-carousel .carousel-arrow {
   display: none;
 }

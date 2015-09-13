@@ -25,24 +25,33 @@
       .carousel-slide {
         box-sizing: border-box;
         padding: .5em;
+        opacity: .4;
       }
 
       .slide-wrapper {
-        background-color: #999;
-        color: #fff;
+        padding: 2rem 0;
+        background-color: #fff;
+        color: #888;
         font-family: 'Helvetica Neue';
         font-size: 7em;
         font-weight: 100;
         text-align: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,.1);
+        border-radius: 2px;
       }
 
-      .carousel-slide-selected .slide-wrapper {
-        background-color: #444;
+      .carousel-slide-selected {
+        opacity: 1;
       }
 
       .carousel-nav-disabled {
         opacity: .2;
         pointer-events: none;
+      }
+
+      .carousel-pagination {
+        margin-top: 1rem;
+        text-align: center;
       }
     </style>
   </head>
@@ -117,10 +126,10 @@
 
       var c = new VNCarousel(myCarousel, {
         slidesPerPage: 1,
-        peekingPercentage: 5,
+        peekingPercentage: 10,
         responsive: 
           [{
-            breakpoint: 450,
+            breakpoint: 600,
             settings: {
               slidesPerPage: 2
             }

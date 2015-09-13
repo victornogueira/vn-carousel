@@ -21,8 +21,9 @@ var VNCarousel = function(elem, settings) {
     edgeWeight          : 0.2,
     centerCurrentSlides : false,
     swipeThreshold      : 0.2,
-    clickOnInactive     : true,
     grabbingCursor      : true,
+    speed               : 500,
+    timing              : 'ease-in-out',
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
     rtl                 : false,
@@ -101,6 +102,14 @@ VNCarousel.prototype.init = function(slide) {
   }
   
   self.addUIListeners();
+
+  // Disable carousel if 'off'
+  self.elem.classList.remove('carousel-off');
+
+  if (self.off) {
+    self.destroy();
+    self.elem.classList.add('carousel-off');
+  }
 };
 
 VNCarousel.prototype.buildCarousel = function() {
@@ -177,18 +186,16 @@ VNCarousel.prototype.cloneSlides = function() {
 VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
     var self = this;
 
-    self.slidesWrapper.classList.remove('carousel-transition');
+    self.removeTransition(self.slidesWrapper);
 
     if (transition !== false) {
-      self.slidesWrapper.classList.add('carousel-transition');
+      self.addTransition(self.slidesWrapper, self.speed, self.timing);
     }
 
     if (!self.rtl) {
-      self.slidesWrapper.style.webkitTransform = 'translate3d(' + (distance * -1) + '%,0,0)';
-      self.slidesWrapper.style.transform = 'translate3d(' + (distance * -1) + '%,0,0)';   
+      self.add3DTransform(self.slidesWrapper, distance * -1); 
     } else {
-      self.slidesWrapper.style.webkitTransform = 'translate3d(' + (distance * 1) + '%,0,0)';
-      self.slidesWrapper.style.transform = 'translate3d(' + (distance * 1) + '%,0,0)';   
+      self.add3DTransform(self.slidesWrapper, distance);
     }
 };
 
@@ -379,38 +386,11 @@ VNCarousel.prototype.goToClickedPagination = function(elem) {
   self.goToPage(clickedPaginationItem);
 };
 
-VNCarousel.prototype.goToClickedInactive = function(e) {
-  var self = this;
-  var clickedItem = e.target;
-  var slidesNodeList;
-  var clickedIndex;
-
-  while (clickedItem !== self.slidesWrapper) {
-    clickedItem = clickedItem.parentNode;
-
-    break;
-  }
-
-  slidesNodeList = Array.prototype.slice.call(clickedItem.parentNode.children);
-
-  if (self.infinite) {
-    clickedIndex = slidesNodeList.indexOf(clickedItem) - self.clonedSlides.length/2 + 1;
-  } else {
-    clickedIndex = slidesNodeList.indexOf(clickedItem) + 1;
-  }
-
-  if (clickedIndex > self.firstOfCurrentPage) {
-    self.goToNextPage();
-  } else {
-    self.goToPrevPage();
-  }
-};
-
 VNCarousel.prototype.updateAfterTransition = function() {
   var self = this;
 
   self.transitioning = false;
-  self.slidesWrapper.classList.remove('carousel-transition');
+  self.removeTransition(self.slidesWrapper);
 
   if (self.infinite) {
     self.moveFromCloned();
@@ -661,10 +641,6 @@ VNCarousel.prototype.addUIListeners = function() {
       self.paginationWrapper.addEventListener('click', self.getPaginationClick.bind(self));
     }
 
-    if (self.clickOnInactive) {
-      self.slidesWrapper.addEventListener('click', self.goToClickedInactive.bind(self));  
-    }
-
     self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
 
     // Identify which carousel should respond to keyboard events
@@ -712,18 +688,17 @@ VNCarousel.prototype.transitionEndEventName = function() {
   }
 };
 
-VNCarousel.prototype.prevNode = function(elem)  {
-  do {
-      elem = elem.previousSibling;
-  } while ( elem && elem.nodeType !== 1 );
-
-  return elem;
+VNCarousel.prototype.addTransition = function(elem, speed, timing) {
+  elem.style.transition = speed + 'ms ' + timing;
+  elem.style.webkitTransition = speed + 'ms ' + timing;
 };
 
-VNCarousel.prototype.nextNode = function(elem) {
-  do {
-      elem = elem.nextSibling;
-  } while ( elem && elem.nodeType !== 1 );
+VNCarousel.prototype.removeTransition = function(elem) {
+  elem.style.transition = '';
+  elem.style.webkitTransition = '';
+};
 
-  return elem;
+VNCarousel.prototype.add3DTransform = function(elem, value) {
+  elem.style.webkitTransform = 'translate3d(' + value + '%,0,0)';
+  elem.style.transform = 'translate3d(' + value + '%,0,0)';
 };
