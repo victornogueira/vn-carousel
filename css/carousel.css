@@ -1,5 +1,14 @@
+/* 
+   Changing the styles below can affect the carousel functionality.
+   Proceed with caution.
+*/
+
 .carousel {
   overflow: hidden;
+}
+
+.carousel-slides-wrapper {
+  will-change: transform;
 }
 
 .carousel-slides-wrapper:after {

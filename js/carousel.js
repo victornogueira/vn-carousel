@@ -671,8 +671,10 @@ VNCarousel.prototype.addUIListeners = function() {
   }, 100);
 };
 
-/* Utils
---------------------------------------------------------------------------------- */
+
+/*
+   Utils
+*/
 
 VNCarousel.prototype.transitionEndEventName = function() {
   var el = document.createElement('div');
@@ -691,11 +693,13 @@ VNCarousel.prototype.transitionEndEventName = function() {
 VNCarousel.prototype.addTransition = function(elem, speed, timing) {
   elem.style.transition = speed + 'ms ' + timing;
   elem.style.webkitTransition = speed + 'ms ' + timing;
+  elem.classList.add('carousel-transitioning');
 };
 
 VNCarousel.prototype.removeTransition = function(elem) {
   elem.style.transition = '';
   elem.style.webkitTransition = '';
+  elem.classList.remove('carousel-transitioning');
 };
 
 VNCarousel.prototype.add3DTransform = function(elem, value) {

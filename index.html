@@ -3,20 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="author" content="Victor Nogueira" />
-    <meta name="description" content="Carousel." />
+    <meta name="description" content="A simple jQuery-free carousel. Uses Hammer.js for handling touch events." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <link rel="stylesheet" href="css/carousel.css">
     <meta name="msapplication-tap-highlight" content="no"/>
+    <link rel="stylesheet" href="css/carousel.css">
     <title>Carousel</title>
+
+     <!-- Styles below are for this specific example and thus optional -->
     <style>
       body {
         background-color: #eee;
         margin: 0;
       }
 
+      .carousel-slides-wrapper {
+        will-change: transform, opacity;
+      }
+
       .carousel {
-        position: relative;
         margin: 2em 0;
         cursor: -webkit-grab;
         cursor: grab;
@@ -25,7 +30,6 @@
       .carousel-slide {
         box-sizing: border-box;
         padding: .5em;
-        opacity: .4;
       }
 
       .slide-wrapper {
@@ -38,9 +42,16 @@
         text-align: center;
         box-shadow: 0 2px 5px rgba(0,0,0,.1);
         border-radius: 2px;
+        opacity: .4;
       }
 
-      .carousel-slide-selected {
+      /* Apply transition only if slides are moving */
+      .carousel-transitioning .slide-wrapper {
+        /* Speed should be consistent with the carousel transition */
+        transition: opacity 500ms;
+      }
+
+      .carousel-slide-selected .slide-wrapper {
         opacity: 1;
       }
 
