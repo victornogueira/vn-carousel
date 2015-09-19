@@ -8,7 +8,7 @@
 }
 
 .carousel-slides-wrapper {
-  will-change: transform;
+  will-change: transform, transition;
 }
 
 .carousel-slides-wrapper:after {

@@ -20,10 +20,10 @@ var VNCarousel = function(elem, settings) {
     peekingPercentage   : 0,
     edgeWeight          : 0.2,
     centerCurrentSlides : false,
-    swipeThreshold      : 0.2,
+    swipeThreshold      : 0.1,
     grabbingCursor      : true,
     speed               : 500,
-    timing              : 'ease-in-out',
+    timing              : 'ease-out',
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
     rtl                 : false,
@@ -386,21 +386,23 @@ VNCarousel.prototype.goToClickedPagination = function(elem) {
   self.goToPage(clickedPaginationItem);
 };
 
-VNCarousel.prototype.updateAfterTransition = function() {
+VNCarousel.prototype.updateAfterTransition = function(e) {
   var self = this;
 
-  self.transitioning = false;
-  self.removeTransition(self.slidesWrapper);
+  if (e.srcElement === self.slidesWrapper) {
+    self.transitioning = false;
+    self.removeTransition(self.slidesWrapper);
 
-  if (self.infinite) {
-    self.moveFromCloned();
-  }
+    if (self.infinite) {
+      self.moveFromCloned();
+    }
 
-  self.updatePagination(self.currentPage);
+    self.updatePagination(self.currentPage);
 
-  // Callback only if moved to a different page
-  if (self.pageBeforeMoving !== self.currentPageFraction) {
-    self.afterChange();    
+    // Callback only if moved to a different page
+    if (self.pageBeforeMoving !== self.currentPageFraction) {
+      self.afterChange();    
+    }
   }
 };
 
@@ -691,8 +693,8 @@ VNCarousel.prototype.transitionEndEventName = function() {
 };
 
 VNCarousel.prototype.addTransition = function(elem, speed, timing) {
-  elem.style.transition = speed + 'ms ' + timing;
-  elem.style.webkitTransition = speed + 'ms ' + timing;
+  elem.style.transition       = 'transform ' + speed + 'ms ' + timing;
+  elem.style.webkitTransition = 'transform ' + speed + 'ms ' + timing;
   elem.classList.add('carousel-transitioning');
 };
 

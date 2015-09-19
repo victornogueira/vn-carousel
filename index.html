@@ -17,10 +17,6 @@
         margin: 0;
       }
 
-      .carousel-slides-wrapper {
-        will-change: transform, opacity;
-      }
-
       .carousel {
         margin: 2em 0;
         cursor: -webkit-grab;
@@ -137,7 +133,8 @@
 
       var c = new VNCarousel(myCarousel, {
         slidesPerPage: 1,
-        peekingPercentage: 10,
+        peekingPercentage: 5,
+        initialSlide: 1,
         responsive: 
           [{
             breakpoint: 600,
@@ -155,6 +152,12 @@
             breakpoint: 1000,
             settings: {
               slidesPerPage: 4
+            }
+          },
+          {
+            breakpoint: 1200,
+            settings: {
+              slidesPerPage: 5
             }
           }]
       });
