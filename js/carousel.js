@@ -3,10 +3,11 @@ var VNCarousel = function(elem, settings) {
 
   var self = this;
 
-  self.elem          = elem;
-  self.totalCloned   = 0;
-  self.transitionEnd = self.transitionEndEventName();
-  self.didResize     = false;
+  self.elem           = elem;
+  self.totalCloned    = 0;
+  self.transitionEnd  = self.transitionEndEventName();
+  self.didResize      = false;
+  self.scrollbarWidth = self.getScrollbarWidth();
 
   self.defaults = {
     slidesWrapper       : '.js-carousel-slides-wrapper',
@@ -426,10 +427,11 @@ VNCarousel.prototype.getPageOffset = function() {
 
 VNCarousel.prototype.getCurrentBreakpoint = function() {
   var self = this;
+  var winWidth = window.innerWidth - self.scrollbarWidth;
   var i;
 
   for (i = 0; i < self.defaults.responsive.length; i++) {
-    if (window.innerWidth > self.defaults.responsive[i].breakpoint) {
+    if (winWidth > self.defaults.responsive[i].breakpoint) {
       self.bp = i;
     }
   }
@@ -707,4 +709,29 @@ VNCarousel.prototype.removeTransition = function(elem) {
 VNCarousel.prototype.add3DTransform = function(elem, value) {
   elem.style.webkitTransform = 'translate3d(' + value + '%,0,0)';
   elem.style.transform = 'translate3d(' + value + '%,0,0)';
+};
+
+VNCarousel.prototype.getScrollbarWidth = function() {
+    var outer = document.createElement("div");
+    outer.style.visibility = "hidden";
+    outer.style.width = "100px";
+    outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+    document.body.appendChild(outer);
+
+    var widthNoScroll = outer.offsetWidth;
+    // force scrollbars
+    outer.style.overflow = "scroll";
+
+    // add innerdiv
+    var inner = document.createElement("div");
+    inner.style.width = "100%";
+    outer.appendChild(inner);        
+
+    var widthWithScroll = inner.offsetWidth;
+
+    // remove divs
+    outer.parentNode.removeChild(outer);
+
+    return widthNoScroll - widthWithScroll;
 };
