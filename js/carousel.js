@@ -3,11 +3,8 @@ var VNCarousel = function(elem, settings) {
 
   var self = this;
 
-  self.elem           = elem;
-  self.totalCloned    = 0;
-  self.transitionEnd  = self.transitionEndEventName();
-  self.didResize      = false;
-  self.scrollbarWidth = self.getScrollbarWidth();
+  self.elem         = elem;
+  self.totalCloned  = 0;
 
   self.defaults = {
     slidesWrapper       : '.js-carousel-slides-wrapper',
@@ -187,16 +184,16 @@ VNCarousel.prototype.cloneSlides = function() {
 VNCarousel.prototype.setCarouselOffset = function(distance, transition) {
     var self = this;
 
-    self.removeTransition(self.slidesWrapper);
+    self.Utils.removeTransition(self.slidesWrapper);
 
     if (transition !== false) {
-      self.addTransition(self.slidesWrapper, self.speed, self.timing);
+      self.Utils.addTransition(self.slidesWrapper, self.speed, self.timing);
     }
 
     if (!self.rtl) {
-      self.add3DTransform(self.slidesWrapper, distance * -1); 
+      self.Utils.add3DTransform(self.slidesWrapper, distance * -1); 
     } else {
-      self.add3DTransform(self.slidesWrapper, distance);
+      self.Utils.add3DTransform(self.slidesWrapper, distance);
     }
 };
 
@@ -392,7 +389,7 @@ VNCarousel.prototype.updateAfterTransition = function(e) {
 
   if (e.srcElement === self.slidesWrapper) {
     self.transitioning = false;
-    self.removeTransition(self.slidesWrapper);
+    self.Utils.removeTransition(self.slidesWrapper);
 
     if (self.infinite) {
       self.moveFromCloned();
@@ -427,7 +424,7 @@ VNCarousel.prototype.getPageOffset = function() {
 
 VNCarousel.prototype.getCurrentBreakpoint = function() {
   var self = this;
-  var winWidth = window.innerWidth - self.scrollbarWidth;
+  var winWidth = window.innerWidth - self.Utils.getScrollbarWidth();
   var i;
 
   for (i = 0; i < self.defaults.responsive.length; i++) {
@@ -480,7 +477,7 @@ VNCarousel.prototype.listenToBreakpoints = function() {
     }
 
     if (self.bp !== 0) {
-      prevBP = self.defaults.responsive[self.bp - 1].breakpoint;
+      prevBP = self.defaults.responsive[self.bp].breakpoint;
     } else {
       prevBP = self.defaults.responsive[0].breakpoint;
     }
@@ -645,7 +642,7 @@ VNCarousel.prototype.addUIListeners = function() {
       self.paginationWrapper.addEventListener('click', self.getPaginationClick.bind(self));
     }
 
-    self.slidesWrapper.addEventListener(self.transitionEnd, self.updateAfterTransition.bind(self));
+    self.slidesWrapper.addEventListener(self.Utils.transitionEndEventName(), self.updateAfterTransition.bind(self));
 
     // Identify which carousel should respond to keyboard events
     document.addEventListener('click', function(e) {
@@ -663,16 +660,11 @@ VNCarousel.prototype.addUIListeners = function() {
     self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
   }
   
-  window.addEventListener('resize', function(){
-    self.didResize = true;
-  });
-
-  setInterval(function() {
-    if (self.didResize) {
-      self.didResize = false;
-      self.listenToBreakpoints();
-    }
+  var changeBPAfterResize = self.Utils.debounce(function() {  
+    self.listenToBreakpoints();
   }, 100);
+
+  window.addEventListener('resize', changeBPAfterResize);
 };
 
 
@@ -680,58 +672,72 @@ VNCarousel.prototype.addUIListeners = function() {
    Utils
 */
 
-VNCarousel.prototype.transitionEndEventName = function() {
-  var el = document.createElement('div');
-  var transitions = {
-    'transition':'transitionend',
-    'WebkitTransition':'webkitTransitionEnd'
-  };
+VNCarousel.prototype.Utils = {
 
-  for (var i in transitions) {
-    if (transitions.hasOwnProperty(i) && el.style[i] !== undefined) {
-      return transitions[i];
+  transitionEndEventName: function() {
+    var el = document.createElement('div');
+    var transitions = {
+      'transition':'transitionend',
+      'WebkitTransition':'webkitTransitionEnd'
+    };
+
+    for (var i in transitions) {
+      if (transitions.hasOwnProperty(i) && el.style[i] !== undefined) {
+        return transitions[i];
+      }
     }
+  },
+  addTransition: function(elem, speed, timing) {
+    elem.style.transition       = 'transform ' + speed + 'ms ' + timing;
+    elem.style.webkitTransition = 'transform ' + speed + 'ms ' + timing;
+    elem.classList.add('carousel-transitioning');
+  },
+  removeTransition: function(elem) {
+    elem.style.transition = '';
+    elem.style.webkitTransition = '';
+    elem.classList.remove('carousel-transitioning');
+  },
+  add3DTransform: function(elem, value) {
+    elem.style.webkitTransform = 'translate3d(' + value + '%,0,0)';
+    elem.style.transform = 'translate3d(' + value + '%,0,0)';
+  },
+  getScrollbarWidth: function() {
+      var outer = document.createElement("div");
+      outer.style.visibility = "hidden";
+      outer.style.width = "100px";
+      outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+      document.body.appendChild(outer);
+
+      var widthNoScroll = outer.offsetWidth;
+      // force scrollbars
+      outer.style.overflow = "scroll";
+
+      // add innerdiv
+      var inner = document.createElement("div");
+      inner.style.width = "100%";
+      outer.appendChild(inner);        
+
+      var widthWithScroll = inner.offsetWidth;
+
+      // remove divs
+      outer.parentNode.removeChild(outer);
+
+      return widthNoScroll - widthWithScroll;
+  },
+  debounce: function(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
   }
-};
 
-VNCarousel.prototype.addTransition = function(elem, speed, timing) {
-  elem.style.transition       = 'transform ' + speed + 'ms ' + timing;
-  elem.style.webkitTransition = 'transform ' + speed + 'ms ' + timing;
-  elem.classList.add('carousel-transitioning');
-};
-
-VNCarousel.prototype.removeTransition = function(elem) {
-  elem.style.transition = '';
-  elem.style.webkitTransition = '';
-  elem.classList.remove('carousel-transitioning');
-};
-
-VNCarousel.prototype.add3DTransform = function(elem, value) {
-  elem.style.webkitTransform = 'translate3d(' + value + '%,0,0)';
-  elem.style.transform = 'translate3d(' + value + '%,0,0)';
-};
-
-VNCarousel.prototype.getScrollbarWidth = function() {
-    var outer = document.createElement("div");
-    outer.style.visibility = "hidden";
-    outer.style.width = "100px";
-    outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
-
-    document.body.appendChild(outer);
-
-    var widthNoScroll = outer.offsetWidth;
-    // force scrollbars
-    outer.style.overflow = "scroll";
-
-    // add innerdiv
-    var inner = document.createElement("div");
-    inner.style.width = "100%";
-    outer.appendChild(inner);        
-
-    var widthWithScroll = inner.offsetWidth;
-
-    // remove divs
-    outer.parentNode.removeChild(outer);
-
-    return widthNoScroll - widthWithScroll;
 };

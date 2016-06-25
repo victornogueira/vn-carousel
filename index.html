@@ -38,17 +38,6 @@
         text-align: center;
         box-shadow: 0 2px 5px rgba(0,0,0,.1);
         border-radius: 2px;
-        opacity: .4;
-      }
-
-      /* Apply transition only if slides are moving */
-      .carousel-transitioning .slide-wrapper {
-        /* Speed should be consistent with the carousel transition */
-        transition: opacity 500ms;
-      }
-
-      .carousel-slide-selected .slide-wrapper {
-        opacity: 1;
       }
 
       .carousel-nav-disabled {
@@ -135,17 +124,12 @@
         slidesPerPage: 1,
         peekingPercentage: 5,
         initialSlide: 1,
+        infinite: false,
         responsive: 
           [{
             breakpoint: 600,
             settings: {
               slidesPerPage: 2
-            }
-          },
-          {
-            breakpoint: 800,
-            settings: {
-              slidesPerPage: 3
             }
           },
           {
