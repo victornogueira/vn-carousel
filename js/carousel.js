@@ -5,6 +5,7 @@ var VNCarousel = function(elem, settings) {
 
   self.elem         = elem;
   self.totalCloned  = 0;
+  self.didResize    = false;
 
   self.defaults = {
     slidesWrapper       : '.js-carousel-slides-wrapper',
@@ -25,6 +26,7 @@ var VNCarousel = function(elem, settings) {
     paginationMarkup    : '<button class="carousel-pagination-item"></button>',
     responsive          : [],
     rtl                 : false,
+    respondTo           : 'window',
     onInit              : function() {},
     afterChange         : function() {},
     beforeChange        : function() {},
@@ -424,11 +426,17 @@ VNCarousel.prototype.getPageOffset = function() {
 
 VNCarousel.prototype.getCurrentBreakpoint = function() {
   var self = this;
-  var winWidth = window.innerWidth - self.Utils.getScrollbarWidth();
+  var containerWidth;
   var i;
 
+  if (self.respondTo == 'window') {
+    containerWidth = window.innerWidth - self.Utils.getScrollbarWidth();
+  } else {
+    containerWidth = self.elem.getBoundingClientRect().width;
+  }
+
   for (i = 0; i < self.defaults.responsive.length; i++) {
-    if (winWidth > self.defaults.responsive[i].breakpoint) {
+    if (containerWidth > self.defaults.responsive[i].breakpoint) {
       self.bp = i;
     }
   }
@@ -467,10 +475,17 @@ VNCarousel.prototype.updateBreakpointProperties = function(property) {
 
 VNCarousel.prototype.listenToBreakpoints = function() {
   var self     = this;
-  var winWidth = window.innerWidth;
+  var containerWidth;
   var prevBP;
   var nextBP;
 
+  if (self.respondTo == 'window') {
+    containerWidth = window.innerWidth - self.Utils.getScrollbarWidth();
+  } else {
+    containerWidth = self.elem.getBoundingClientRect().width;
+  }
+
+  
   if (self.bp !== undefined) {
     if (self.bp !== self.defaults.responsive.length - 1) {
       nextBP = self.defaults.responsive[self.bp + 1].breakpoint;
@@ -485,7 +500,7 @@ VNCarousel.prototype.listenToBreakpoints = function() {
     nextBP = self.defaults.responsive[0].breakpoint;
   }
 
-  if (winWidth > nextBP || winWidth < prevBP) {
+  if (containerWidth > nextBP || containerWidth < prevBP) {
     self.destroy();
     self.init(self.firstOfCurrentPage);
   }
@@ -660,11 +675,17 @@ VNCarousel.prototype.addUIListeners = function() {
     self.createHammer.on('panstart panleft panright panend', self.addTouchListeners.bind(self));
   }
   
-  var changeBPAfterResize = self.Utils.debounce(function() {  
-    self.listenToBreakpoints();
-  }, 100);
+  window.addEventListener('resize', function() {
+    self.didResize = true;
+  });
 
-  window.addEventListener('resize', changeBPAfterResize);
+  setInterval(function(){
+    if (self.didResize) {
+      self.listenToBreakpoints();
+
+      self.didResize = false;
+    }
+  },200);
 };
 
 
@@ -687,20 +708,24 @@ VNCarousel.prototype.Utils = {
       }
     }
   },
+
   addTransition: function(elem, speed, timing) {
     elem.style.transition       = 'transform ' + speed + 'ms ' + timing;
     elem.style.webkitTransition = 'transform ' + speed + 'ms ' + timing;
     elem.classList.add('carousel-transitioning');
   },
+
   removeTransition: function(elem) {
     elem.style.transition = '';
     elem.style.webkitTransition = '';
     elem.classList.remove('carousel-transitioning');
   },
+
   add3DTransform: function(elem, value) {
     elem.style.webkitTransform = 'translate3d(' + value + '%,0,0)';
     elem.style.transform = 'translate3d(' + value + '%,0,0)';
   },
+  
   getScrollbarWidth: function() {
       var outer = document.createElement("div");
       outer.style.visibility = "hidden";
@@ -724,20 +749,6 @@ VNCarousel.prototype.Utils = {
       outer.parentNode.removeChild(outer);
 
       return widthNoScroll - widthWithScroll;
-  },
-  debounce: function(func, wait, immediate) {
-    var timeout;
-    return function() {
-      var context = this, args = arguments;
-      var later = function() {
-        timeout = null;
-        if (!immediate) func.apply(context, args);
-      };
-      var callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-    };
   }
 
 };
