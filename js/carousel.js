@@ -488,7 +488,6 @@ VNCarousel.prototype.listenToBreakpoints = function() {
     containerWidth = self.elem.getBoundingClientRect().width;
   }
 
-  
   if (self.bp !== undefined) {
     if (self.bp !== self.defaults.responsive.length - 1) {
       nextBP = self.defaults.responsive[self.bp + 1].breakpoint;

@@ -8,21 +8,8 @@
 }
 
 .carousel-slides-wrapper {
+  display: flex;
   will-change: transform, transition;
-}
-
-.carousel-slides-wrapper:after {
-  content: " ";
-  display: table;
-  clear: both;
-}
-
-.carousel-slide {
-  float: left;
-}
-
-[dir="rtl"] .carousel-slide {
-  float: right;
 }
 
 .carousel-pagination-item {
