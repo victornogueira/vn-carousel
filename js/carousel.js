@@ -18,7 +18,7 @@ var VNCarousel = function(elem, settings) {
     initialSlide        : 1,
     peekingPercentage   : 0,
     edgeWeight          : 0.2,
-    centerCurrentSlides : false,
+    centerCurrentSlides : true,
     swipeThreshold      : 0.1,
     grabbingCursor      : true,
     speed               : 500,
@@ -114,16 +114,15 @@ VNCarousel.prototype.init = function(slide) {
 
 VNCarousel.prototype.buildCarousel = function() {
   var self = this;
+  var peekingWidth = 100 - self.peekingPercentage * 100 * 2;
 
   if (self.infinite) {
     self.cloneSlides();
   }
 
-  self.pageWidth    = 100/self.totalChildren;
-  self.peekingWidth = self.pageWidth * self.peekingPercentage;
-  self.slideWidth   = (self.pageWidth - self.peekingWidth * 2)/self.slidesPerPage;
+  self.slideWidth = 100/self.totalChildren;
 
-  self.slidesWrapper.style.width = self.totalChildren * 100 + '%';
+  self.slidesWrapper.style.width = self.totalChildren/self.slidesPerPage *  peekingWidth + '%';
 
   for (var i = 0; i < self.carouselSlide.length; i++) {
     self.carouselSlide[i].style.width = self.slideWidth + '%'; 
@@ -407,19 +406,18 @@ VNCarousel.prototype.updateAfterTransition = function(e) {
 };
 
 VNCarousel.prototype.getPageOffset = function() {
-  var self               = this;
-  var clonedOffset       = self.slideWidth * self.totalCloned/2;
-  var peekingOffset      = self.peekingWidth/self.slidesToMove;
-  var carouselOffset     = (self.slideWidth * (self.currentPageFraction - 1)) - peekingOffset;
-  var currentSlidesWidth = self.slideWidth * self.slidesToMove;
-  var centerOffset       = self.pageWidth/2 - self.peekingWidth - currentSlidesWidth/2;
-  var pageOffset;
+  var self          = this;
+  var clonedOffset  = self.slideWidth * self.totalCloned/2;
+  var peekingOffset = self.slideWidth * self.peekingPercentage / (1 - self.peekingPercentage * 2);
+  var carouselOffset = (self.slideWidth * (self.currentPageFraction - 1));
 
   if (self.centerCurrentSlides) {
-    pageOffset = carouselOffset * self.slidesToMove + clonedOffset - centerOffset;
+    carouselOffset = (self.slideWidth * (self.currentPageFraction - 1)) - peekingOffset;
   } else {
-    pageOffset = carouselOffset * self.slidesToMove + clonedOffset;
+    carouselOffset -= peekingOffset;
   }
+
+  var pageOffset = carouselOffset * self.slidesToMove + clonedOffset;
 
   return pageOffset;
 };
