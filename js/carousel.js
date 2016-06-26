@@ -8,29 +8,29 @@ var VNCarousel = function(elem, settings) {
   self.didResize    = false;
 
   self.defaults = {
-    slidesWrapper       : '.js-carousel-slides-wrapper',
-    carouselPrev        : '.js-carousel-prev',
-    carouselNext        : '.js-carousel-next',
-    carouselPagination  : '.js-carousel-pagination',
-    infinite            : true,
-    slidesPerPage       : 5,
-    slidesToMove        : null,
-    initialSlide        : 1,
-    peekingPercentage   : 0,
-    edgeWeight          : 0.2,
-    centerCurrentSlides : true,
-    swipeThreshold      : 0.1,
-    grabbingCursor      : true,
-    speed               : 500,
-    timing              : 'ease-out',
-    paginationMarkup    : '<button class="carousel-pagination-item"></button>',
-    responsive          : [],
-    rtl                 : false,
-    respondTo           : 'window',
-    onInit              : function() {},
-    afterChange         : function() {},
-    beforeChange        : function() {},
-    hitEdge             : function() {}
+    slidesWrapper      : '.js-carousel-slides-wrapper',
+    carouselPrev       : '.js-carousel-prev',
+    carouselNext       : '.js-carousel-next',
+    carouselPagination : '.js-carousel-pagination',
+    infinite           : true,
+    slidesPerPage      : 5,
+    slidesToMove       : null,
+    initialSlide       : 1,
+    peekingPercentage  : 0,
+    edgeWeight         : 0.2,
+    centerSlides       : true,
+    swipeThreshold     : 0.1,
+    grabbingCursor     : true,
+    speed              : 500,
+    timing             : 'ease-out',
+    paginationMarkup   : '<button class="carousel-pagination-item"></button>',
+    responsive         : [],
+    rtl                : false,
+    respondTo          : 'window',
+    onInit             : function() {},
+    afterChange        : function() {},
+    beforeChange       : function() {},
+    hitEdge            : function() {}
   };
 
   // Override default settings
@@ -411,8 +411,13 @@ VNCarousel.prototype.getPageOffset = function() {
   var peekingOffset = self.slideWidth * self.peekingPercentage / (1 - self.peekingPercentage * 2);
   var carouselOffset = (self.slideWidth * (self.currentPageFraction - 1));
 
-  if (self.centerCurrentSlides) {
-    carouselOffset = (self.slideWidth * (self.currentPageFraction - 1)) - peekingOffset;
+  if (!self.centerSlides) {
+    carouselOffset = (self.slideWidth * (self.currentPageFraction - 1));
+
+    // Avoid right gap on non infinite carousel at last page
+    if (self.currentPage === self.totalPages && !self.infinite) {
+      carouselOffset -= peekingOffset * 2;
+    }
   } else {
     carouselOffset -= peekingOffset;
   }
