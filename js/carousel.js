@@ -233,7 +233,7 @@ VNCarousel.prototype.goToPage = function(page, transition) {
       self.firstOfCurrentPage  = Math.round((page - 1) * self.slidesToMove + 1);
       self.currentSlides       = self.getCurrentSlides();
 
-      if (!self.infinite) {
+      if (!self.infinite && self.carouselNext) {
         // Enable/disable nav when edge is hit
         self.carouselPrev.classList.remove('carousel-nav-disabled');
         self.carouselNext.classList.remove('carousel-nav-disabled');
