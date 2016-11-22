@@ -12,8 +12,8 @@ var VNCarousel = function(elem, settings) {
     carouselPrev       : '.js-carousel-prev',
     carouselNext       : '.js-carousel-next',
     carouselPagination : '.js-carousel-pagination',
-    infinite           : true,
-    slidesPerPage      : 5,
+    infinite           : false,
+    slidesPerPage      : 1,
     slidesToMove       : null,
     initialSlide       : 1,
     peekingPercentage  : 0,
@@ -477,35 +477,38 @@ VNCarousel.prototype.updateBreakpointProperties = function(property) {
 };
 
 VNCarousel.prototype.listenToBreakpoints = function() {
-  var self     = this;
+  var self = this;
   var containerWidth;
   var prevBP;
   var nextBP;
 
-  if (self.respondTo == 'window') {
-    containerWidth = window.innerWidth - self.Utils.getScrollbarWidth();
-  } else {
-    containerWidth = self.elem.getBoundingClientRect().width;
-  }
-
-  if (self.bp !== undefined) {
-    if (self.bp !== self.defaults.responsive.length - 1) {
-      nextBP = self.defaults.responsive[self.bp + 1].breakpoint;
-    }
-
-    if (self.bp !== 0) {
-      prevBP = self.defaults.responsive[self.bp].breakpoint;
+  if (self.responsive.length) {
+    if (self.respondTo == 'window') {
+      containerWidth = window.innerWidth - self.Utils.getScrollbarWidth();
     } else {
-      prevBP = self.defaults.responsive[0].breakpoint;
+      containerWidth = self.elem.getBoundingClientRect().width;
     }
-  } else {
-    nextBP = self.defaults.responsive[0].breakpoint;
-  }
 
-  if (containerWidth > nextBP || containerWidth < prevBP) {
-    self.destroy();
-    self.init(self.firstOfCurrentPage);
+    if (self.bp !== undefined) {
+      if (self.bp !== self.defaults.responsive.length - 1) {
+        nextBP = self.defaults.responsive[self.bp + 1].breakpoint;
+      }
+
+      if (self.bp !== 0) {
+        prevBP = self.defaults.responsive[self.bp].breakpoint;
+      } else {
+        prevBP = self.defaults.responsive[0].breakpoint;
+      }
+    } else {
+      nextBP = self.defaults.responsive[0].breakpoint;
+    }
+
+    if (containerWidth > nextBP || containerWidth < prevBP) {
+      self.destroy();
+      self.init(self.firstOfCurrentPage);
+    }
   }
+  
 };
 
 VNCarousel.prototype.addTouchListeners = function(ev) {
