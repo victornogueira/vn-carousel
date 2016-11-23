@@ -388,7 +388,7 @@ VNCarousel.prototype.goToClickedPagination = function(elem) {
 VNCarousel.prototype.updateAfterTransition = function(e) {
   var self = this;
 
-  if (e.srcElement === self.slidesWrapper) {
+  if (e.target === self.slidesWrapper) {
     self.transitioning = false;
     self.Utils.removeTransition(self.slidesWrapper);
 
