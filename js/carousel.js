@@ -115,6 +115,12 @@ VNCarousel.prototype.init = function(slide) {
 VNCarousel.prototype.buildCarousel = function() {
   var self = this;
   var peekingWidth = 100 - self.peekingPercentage * 100 * 2;
+  var i;
+
+  // Add attribute to get "real" slide index when needed (considering clones)
+  for (i = 0; i < self.carouselSlide.length; i++) {
+    self.carouselSlide[i].setAttribute('data-slide-number',i);
+  }
 
   if (self.infinite) {
     self.cloneSlides();
@@ -124,8 +130,8 @@ VNCarousel.prototype.buildCarousel = function() {
 
   self.slidesWrapper.style.width = self.totalChildren/self.slidesPerPage *  peekingWidth + '%';
 
-  for (var i = 0; i < self.carouselSlide.length; i++) {
-    self.carouselSlide[i].style.width = self.slideWidth + '%'; 
+  for (i = 0; i < self.carouselSlide.length; i++) {
+    self.carouselSlide[i].style.width = self.slideWidth + '%';
   }
 
   self.buildPagination();
@@ -318,11 +324,29 @@ VNCarousel.prototype.styleCurrentSlides = function() {
     self.carouselSlide[i].classList.remove('carousel-slide-selected');
   }
 
-  // Add class to current
+  // Add class to current slides (and clones)
   for (i = 0; i < self.slidesToMove; i++) {
-    var currentSlides = self.firstOfCurrentPage + self.totalCloned/2 + i - 1;
-    self.carouselSlide[currentSlides].classList.add('carousel-slide-selected');
+    var indexToSelect = self.firstOfCurrentPage + i - 1;
+
+    if (self.firstOfCurrentPage > self.totalSlides) {
+      indexToSelect -= self.totalSlides;
+    } else if (self.firstOfCurrentPage < 0) {
+      indexToSelect += self.totalSlides;
+    }
+
+    var currentSlides = self.selectByIndex(indexToSelect);
+
+    for (var j = 0; j < currentSlides.length; j++) {
+      currentSlides[j].classList.add('carousel-slide-selected');  
+    }
   }
+};
+
+VNCarousel.prototype.selectByIndex = function(index) {
+  var self    = this;
+  var selector = '.carousel-slide[data-slide-number="' + index + '"]';
+
+  return self.slidesWrapper.querySelectorAll(selector); 
 };
 
 VNCarousel.prototype.buildPagination = function() {
@@ -406,20 +430,15 @@ VNCarousel.prototype.updateAfterTransition = function(e) {
 };
 
 VNCarousel.prototype.getPageOffset = function() {
-  var self          = this;
-  var clonedOffset  = self.slideWidth * self.totalCloned/2;
-  var peekingOffset = self.slideWidth * self.peekingPercentage / (1 - self.peekingPercentage * 2);
+  var self           = this;
+  var clonedOffset   = self.slideWidth * self.totalCloned/2;
+  var peekingOffset  = self.slideWidth * self.peekingPercentage / (1 - self.peekingPercentage * 2);
   var carouselOffset = (self.slideWidth * (self.currentPageFraction - 1));
 
   if (!self.centerSlides) {
     carouselOffset = (self.slideWidth * (self.currentPageFraction - 1));
-
-    // Avoid right gap on non infinite carousel at last page
-    if (self.currentPage === self.totalPages && !self.infinite) {
-      carouselOffset -= peekingOffset * 2;
-    }
   } else {
-    carouselOffset -= peekingOffset;
+    carouselOffset -= peekingOffset * (self.slidesPerPage/self.slidesToMove);
   }
 
   var pageOffset = carouselOffset * self.slidesToMove + clonedOffset;
